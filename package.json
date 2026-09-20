@@ -1,0 +1,29 @@
+{
+  "name": "salon-appointment-booking-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.0",
+    "express": "^5.2.1",
+    "googleapis": "^181.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mysql2": "^3.24.4",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.0.10",
+    "pdfkit": "^0.20.2",
+    "razorpay": "^2.9.8",
+    "stripe": "^22.6.2"
+  }
+}
