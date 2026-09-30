@@ -1,4 +1,3 @@
-
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 
@@ -20,6 +19,53 @@ const razorpay = new Razorpay({
 
 
 // ========================================
+// Helper: Check Appointment Ownership
+// ========================================
+
+const getAppointmentForUser = async (
+    appointmentId,
+    userId,
+    userRole
+) => {
+
+    let query = `
+        SELECT
+            a.*,
+            s.name AS serviceName,
+            s.price AS servicePrice
+        FROM appointments a
+        JOIN services s
+            ON a.serviceId = s.id
+        WHERE a.id = ?
+    `;
+
+    const params = [appointmentId];
+
+    // Customer can access only own appointment.
+    // Admin can access any appointment.
+    if (userRole !== "ADMIN") {
+
+        query += `
+            AND a.userId = ?
+        `;
+
+        params.push(userId);
+    }
+
+    const [rows] = await db.query(
+        query,
+        params
+    );
+
+    if (rows.length === 0) {
+        return null;
+    }
+
+    return rows[0];
+};
+
+
+// ========================================
 // Create Payment Order
 // ========================================
 
@@ -29,10 +75,13 @@ const createPaymentOrder = async (req, res) => {
 
         const { appointmentId } = req.body;
 
-        console.log(
-            "Creating payment order for appointment:",
-            appointmentId
-        );
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+
+        // ========================================
+        // Validate Appointment ID
+        // ========================================
 
         if (!appointmentId) {
 
@@ -45,22 +94,18 @@ const createPaymentOrder = async (req, res) => {
 
 
         // ========================================
-        // Find Appointment
+        // Find Appointment + Check Ownership
         // ========================================
 
-        const [appointments] = await db.query(
-            `SELECT
-                a.*,
-                s.name AS serviceName
-             FROM appointments a
-             JOIN services s
-                ON a.serviceId = s.id
-             WHERE a.id = ?`,
-            [appointmentId]
-        );
+        const appointment =
+            await getAppointmentForUser(
+                appointmentId,
+                userId,
+                userRole
+            );
 
 
-        if (appointments.length === 0) {
+        if (!appointment) {
 
             return res.status(404).json({
                 success: false,
@@ -70,14 +115,13 @@ const createPaymentOrder = async (req, res) => {
         }
 
 
-        const appointment = appointments[0];
-
-
         // ========================================
         // Check Appointment Status
         // ========================================
 
-        if (appointment.status === "CANCELLED") {
+        if (
+            appointment.status === "CANCELLED"
+        ) {
 
             return res.status(400).json({
                 success: false,
@@ -89,33 +133,18 @@ const createPaymentOrder = async (req, res) => {
 
 
         // ========================================
-        // Get Service Price
+        // Get Current Service Price
         // ========================================
 
-        const [services] = await db.query(
-            `SELECT price
-             FROM services
-             WHERE id = ?`,
-            [appointment.serviceId]
-        );
-
-
-        if (services.length === 0) {
-
-            return res.status(404).json({
-                success: false,
-                message: "Service not found"
-            });
-
-        }
-
-
         const amount = Number(
-            services[0].price
+            appointment.servicePrice
         );
 
 
-        if (!amount || amount <= 0) {
+        if (
+            !Number.isFinite(amount) ||
+            amount <= 0
+        ) {
 
             return res.status(400).json({
                 success: false,
@@ -126,15 +155,118 @@ const createPaymentOrder = async (req, res) => {
 
 
         // ========================================
-        // Razorpay Order
-        // Amount must be in paise
+        // Check Already PAID
+        // ========================================
+
+        const [paidPayments] = await db.query(
+            `SELECT
+                id,
+                appointmentId,
+                amount,
+                currency,
+                razorpayOrderId,
+                razorpayPaymentId,
+                status
+             FROM payments
+             WHERE appointmentId = ?
+             AND status = 'PAID'
+             ORDER BY id DESC
+             LIMIT 1`,
+            [appointmentId]
+        );
+
+
+        if (paidPayments.length > 0) {
+
+            return res.status(409).json({
+                success: false,
+                message:
+                    "Payment already completed for this appointment",
+                data: paidPayments[0]
+            });
+
+        }
+
+
+        // ========================================
+        // Check Existing CREATED Payment
+        // ========================================
+
+        const [existingPayments] = await db.query(
+            `SELECT
+                id,
+                appointmentId,
+                amount,
+                currency,
+                razorpayOrderId,
+                status
+             FROM payments
+             WHERE appointmentId = ?
+             AND status = 'CREATED'
+             ORDER BY id DESC
+             LIMIT 1`,
+            [appointmentId]
+        );
+
+
+        // ========================================
+        // Reuse Existing Payment Order
+        // ========================================
+
+        if (existingPayments.length > 0) {
+
+            const existingPayment =
+                existingPayments[0];
+
+
+            return res.status(200).json({
+
+                success: true,
+
+                message:
+                    "Existing payment order found",
+
+                data: {
+
+                    paymentId:
+                        existingPayment.id,
+
+                    appointmentId:
+                        appointmentId,
+
+                    serviceName:
+                        appointment.serviceName,
+
+                    amount:
+                        Number(existingPayment.amount),
+
+                    currency:
+                        existingPayment.currency,
+
+                    razorpayOrderId:
+                        existingPayment.razorpayOrderId,
+
+                    razorpayKeyId:
+                        process.env.RAZORPAY_KEY_ID
+
+                }
+
+            });
+
+        }
+
+
+        // ========================================
+        // Create New Razorpay Order
         // ========================================
 
         const options = {
 
-            amount: Math.round(amount * 100),
+            amount:
+                Math.round(amount * 100),
 
-            currency: "INR",
+            currency:
+                "INR",
 
             receipt:
                 `appointment_${appointmentId}`
@@ -143,7 +275,9 @@ const createPaymentOrder = async (req, res) => {
 
 
         const order =
-            await razorpay.orders.create(options);
+            await razorpay.orders.create(
+                options
+            );
 
 
         console.log(
@@ -156,23 +290,24 @@ const createPaymentOrder = async (req, res) => {
         // Save Payment
         // ========================================
 
-        const [paymentResult] = await db.query(
-            `INSERT INTO payments
-            (
-                appointmentId,
-                amount,
-                currency,
-                razorpayOrderId,
-                status
-            )
-            VALUES (?, ?, ?, ?, 'CREATED')`,
-            [
-                appointmentId,
-                amount,
-                "INR",
-                order.id
-            ]
-        );
+        const [paymentResult] =
+            await db.query(
+                `INSERT INTO payments
+                (
+                    appointmentId,
+                    amount,
+                    currency,
+                    razorpayOrderId,
+                    status
+                )
+                VALUES (?, ?, ?, ?, 'CREATED')`,
+                [
+                    appointmentId,
+                    amount,
+                    "INR",
+                    order.id
+                ]
+            );
 
 
         // ========================================
@@ -225,10 +360,7 @@ const createPaymentOrder = async (req, res) => {
             success: false,
 
             message:
-                "Failed to create payment order",
-
-            error:
-                error.message
+                "Failed to create payment order"
 
         });
 
@@ -245,7 +377,11 @@ const verifyPayment = async (req, res) => {
 
     try {
 
-         console.log("VERIFY BODY:", req.body);
+        console.log(
+            "VERIFY BODY:",
+            req.body
+        );
+
 
         const {
             appointmentId,
@@ -254,6 +390,14 @@ const verifyPayment = async (req, res) => {
             razorpaySignature
         } = req.body;
 
+
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+
+        // ========================================
+        // Validate Request
+        // ========================================
 
         if (
             !appointmentId ||
@@ -275,7 +419,119 @@ const verifyPayment = async (req, res) => {
 
 
         // ========================================
-        // Generate Signature
+        // Check Appointment Ownership
+        // ========================================
+
+        const appointment =
+            await getAppointmentForUser(
+                appointmentId,
+                userId,
+                userRole
+            );
+
+
+        if (!appointment) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Appointment not found"
+
+            });
+
+        }
+
+
+        // ========================================
+        // Find Payment Record
+        // ========================================
+
+        const [payments] =
+            await db.query(
+                `SELECT *
+                 FROM payments
+                 WHERE appointmentId = ?
+                 AND razorpayOrderId = ?
+                 LIMIT 1`,
+                [
+                    appointmentId,
+                    razorpayOrderId
+                ]
+            );
+
+
+        if (payments.length === 0) {
+
+            return res.status(404).json({
+
+                success: false,
+
+                message:
+                    "Payment order not found"
+
+            });
+
+        }
+
+
+        const payment =
+            payments[0];
+
+
+        // ========================================
+        // Check Already PAID
+        // ========================================
+
+        if (payment.status === "PAID") {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "Payment has already been verified"
+
+            });
+
+        }
+
+
+        // ========================================
+        // Verify Payment Amount
+        // ========================================
+
+        const expectedAmount =
+            Number(
+                appointment.servicePrice
+            );
+
+        const paymentAmount =
+            Number(
+                payment.amount
+            );
+
+
+        if (
+            expectedAmount !==
+            paymentAmount
+        ) {
+
+            return res.status(400).json({
+
+                success: false,
+
+                message:
+                    "Payment amount mismatch"
+
+            });
+
+        }
+
+
+        // ========================================
+        // Generate Razorpay Signature
         // ========================================
 
         const generatedSignature =
@@ -291,23 +547,39 @@ const verifyPayment = async (req, res) => {
 
 
         // ========================================
-        // Compare Signature
+        // Compare Signature Securely
         // ========================================
 
-        if (
-            generatedSignature !==
-            razorpaySignature
-        ) {
+        const generatedBuffer =
+            Buffer.from(
+                generatedSignature,
+                "utf8"
+            );
+
+        const receivedBuffer =
+            Buffer.from(
+                razorpaySignature,
+                "utf8"
+            );
+
+
+        const signatureValid =
+            generatedBuffer.length ===
+            receivedBuffer.length &&
+            crypto.timingSafeEqual(
+                generatedBuffer,
+                receivedBuffer
+            );
+
+
+        if (!signatureValid) {
 
             await db.query(
                 `UPDATE payments
                  SET status = 'FAILED'
-                 WHERE appointmentId = ?
-                 AND razorpayOrderId = ?`,
-                [
-                    appointmentId,
-                    razorpayOrderId
-                ]
+                 WHERE id = ?
+                 AND status = 'CREATED'`,
+                [payment.id]
             );
 
 
@@ -327,68 +599,91 @@ const verifyPayment = async (req, res) => {
         // Update Payment To PAID
         // ========================================
 
-        await db.query(
-            `UPDATE payments
-             SET
-                razorpayPaymentId = ?,
-                razorpaySignature = ?,
-                status = 'PAID'
-             WHERE appointmentId = ?
-             AND razorpayOrderId = ?`,
-            [
-                razorpayPaymentId,
-                razorpaySignature,
-                appointmentId,
-                razorpayOrderId
-            ]
-        );
+        const [updateResult] =
+            await db.query(
+                `UPDATE payments
+                 SET
+                    razorpayPaymentId = ?,
+                    razorpaySignature = ?,
+                    status = 'PAID'
+                 WHERE id = ?
+                 AND appointmentId = ?
+                 AND razorpayOrderId = ?
+                 AND status = 'CREATED'`,
+                [
+                    razorpayPaymentId,
+                    razorpaySignature,
+                    payment.id,
+                    appointmentId,
+                    razorpayOrderId
+                ]
+            );
+
+
+        if (
+            updateResult.affectedRows === 0
+        ) {
+
+            return res.status(409).json({
+
+                success: false,
+
+                message:
+                    "Payment could not be completed or was already processed"
+
+            });
+
+        }
 
 
         // ========================================
-        // Get Complete Invoice Details
+        // Get Invoice Details
         // ========================================
 
-        const [invoiceRows] = await db.query(
-            `SELECT
-                a.id AS appointmentId,
-                a.customerName,
-                a.customerEmail,
-                a.appointmentDate,
-                a.startTime,
-                a.endTime,
+        const [invoiceRows] =
+            await db.query(
+                `SELECT
+                    a.id AS appointmentId,
+                    a.customerName,
+                    a.customerEmail,
+                    a.appointmentDate,
+                    a.startTime,
+                    a.endTime,
 
-                s.name AS serviceName,
+                    s.name AS serviceName,
 
-                st.name AS staffName,
+                    st.name AS staffName,
 
-                p.amount,
-                p.status AS paymentStatus,
-                p.razorpayPaymentId
+                    p.amount,
+                    p.status AS paymentStatus,
+                    p.razorpayPaymentId
 
-             FROM appointments a
+                 FROM appointments a
 
-             JOIN services s
-                ON a.serviceId = s.id
+                 JOIN services s
+                    ON a.serviceId = s.id
 
-             JOIN staff st
-                ON a.staffId = st.id
+                 JOIN staff st
+                    ON a.staffId = st.id
 
-             JOIN payments p
-                ON p.appointmentId = a.id
+                 JOIN payments p
+                    ON p.appointmentId = a.id
 
-             WHERE a.id = ?
-             AND p.razorpayOrderId = ?
-             AND p.status = 'PAID'
+                 WHERE a.id = ?
+                 AND p.id = ?
+                 AND p.status = 'PAID'
 
-             LIMIT 1`,
-            [
-                appointmentId,
-                razorpayOrderId
-            ]
-        );
+                 LIMIT 1`,
+                [
+                    appointmentId,
+                    payment.id
+                ]
+            );
 
 
-        if (invoiceRows.length === 0) {
+        if (
+            invoiceRows.length === 0
+        ) {
 
             return res.status(404).json({
 
@@ -402,7 +697,8 @@ const verifyPayment = async (req, res) => {
         }
 
 
-        const invoiceData = invoiceRows[0];
+        const invoiceData =
+            invoiceRows[0];
 
 
         // ========================================
@@ -410,7 +706,9 @@ const verifyPayment = async (req, res) => {
         // ========================================
 
         const invoice =
-            await generateInvoice(invoiceData);
+            await generateInvoice(
+                invoiceData
+            );
 
 
         console.log(
@@ -466,10 +764,7 @@ const verifyPayment = async (req, res) => {
             success: false,
 
             message:
-                "Payment verification failed",
-
-            error:
-                error.message
+                "Payment verification failed"
 
         });
 
@@ -482,54 +777,102 @@ const verifyPayment = async (req, res) => {
 // Get Payment By Appointment
 // ========================================
 
-const getPaymentByAppointment = async (req, res) => {
+const getPaymentByAppointment =
+    async (req, res) => {
 
-    try {
+        try {
 
-        const { appointmentId } =
-            req.params;
+            const {
+                appointmentId
+            } = req.params;
 
+            const userId =
+                req.user.id;
 
-        const [payments] = await db.query(
-            `SELECT *
-             FROM payments
-             WHERE appointmentId = ?
-             ORDER BY id DESC`,
-            [appointmentId]
-        );
+            const userRole =
+                req.user.role;
 
 
-        return res.status(200).json({
+            // ========================================
+            // Check Appointment Ownership
+            // ========================================
 
-            success: true,
+            const appointment =
+                await getAppointmentForUser(
+                    appointmentId,
+                    userId,
+                    userRole
+                );
 
-            count:
-                payments.length,
 
-            data:
-                payments
+            if (!appointment) {
 
-        });
+                return res.status(404).json({
 
-    } catch (error) {
+                    success: false,
 
-        console.error(
-            "Get payment error:",
-            error
-        );
+                    message:
+                        "Appointment not found"
 
-        return res.status(500).json({
+                });
 
-            success: false,
+            }
 
-            message:
-                "Failed to get payment details"
 
-        });
+            // ========================================
+            // Get Payments
+            // ========================================
 
-    }
+            const [payments] =
+                await db.query(
+                    `SELECT
+                        id,
+                        appointmentId,
+                        amount,
+                        currency,
+                        razorpayOrderId,
+                        razorpayPaymentId,
+                        status,
+                        createdAt,
+                        updatedAt
+                     FROM payments
+                     WHERE appointmentId = ?
+                     ORDER BY id DESC`,
+                    [appointmentId]
+                );
 
-};
+
+            return res.status(200).json({
+
+                success: true,
+
+                count:
+                    payments.length,
+
+                data:
+                    payments
+
+            });
+
+        } catch (error) {
+
+            console.error(
+                "Get payment error:",
+                error
+            );
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Failed to get payment details"
+
+            });
+
+        }
+
+    };
 
 
 // ========================================

@@ -2,6 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
+const adminMiddleware =
+    require("../middleware/adminMiddleware");
+
 const {
     createService,
     getServices,
@@ -10,19 +13,46 @@ const {
     deleteService
 } = require("../controllers/serviceController");
 
-// Create service
-router.post("/", createService);
+// ==========================================
+// PUBLIC ROUTES
+// ==========================================
 
-// Get all services
-router.get("/", getServices);
+// Get all active services
+router.get(
+    "/",
+    getServices
+);
 
 // Get service by ID
-router.get("/:id", getServiceById);
+router.get(
+    "/:id",
+    getServiceById
+);
+
+
+// ==========================================
+// ADMIN ONLY ROUTES
+// ==========================================
+
+// Create service
+router.post(
+    "/",
+    adminMiddleware,
+    createService
+);
 
 // Update service
-router.put("/:id", updateService);
+router.put(
+    "/:id",
+    adminMiddleware,
+    updateService
+);
 
 // Delete service
-router.delete("/:id", deleteService);
+router.delete(
+    "/:id",
+    adminMiddleware,
+    deleteService
+);
 
 module.exports = router;

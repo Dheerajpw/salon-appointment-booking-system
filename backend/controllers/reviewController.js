@@ -14,6 +14,8 @@ const createReview = async (req, res) => {
             comment
         } = req.body;
 
+        const userId = req.user.id;
+
 
         // ==========================================
         // VALIDATE REQUIRED FIELDS
@@ -21,7 +23,8 @@ const createReview = async (req, res) => {
 
         if (
             !appointmentId ||
-            !rating
+            rating === undefined ||
+            rating === null
         ) {
             return res.status(400).json({
                 success: false,
@@ -34,19 +37,23 @@ const createReview = async (req, res) => {
         // VALIDATE RATING
         // ==========================================
 
+        const numericRating = Number(rating);
+
         if (
-            Number(rating) < 1 ||
-            Number(rating) > 5
+            !Number.isInteger(numericRating) ||
+            numericRating < 1 ||
+            numericRating > 5
         ) {
             return res.status(400).json({
                 success: false,
-                message: "Rating must be between 1 and 5"
+                message: "Rating must be an integer between 1 and 5"
             });
         }
 
 
         // ==========================================
         // FIND APPOINTMENT
+        // ONLY OWNER CAN REVIEW
         // ==========================================
 
         const [appointments] = await db.query(
@@ -56,13 +63,17 @@ const createReview = async (req, res) => {
              FROM appointments a
              JOIN staff st
                 ON a.staffId = st.id
-             WHERE a.id = ?`,
-            [appointmentId]
+             WHERE a.id = ?
+             AND a.userId = ?`,
+            [
+                appointmentId,
+                userId
+            ]
         );
 
 
         // ==========================================
-        // APPOINTMENT NOT FOUND
+        // APPOINTMENT NOT FOUND / NOT OWNED
         // ==========================================
 
         if (appointments.length === 0) {
@@ -130,7 +141,7 @@ const createReview = async (req, res) => {
                 appointment.customerEmail,
                 appointment.serviceId,
                 appointment.staffId,
-                rating,
+                numericRating,
                 comment || null
             ]
         );
@@ -167,13 +178,12 @@ const createReview = async (req, res) => {
 
         console.error(
             "Create review error:",
-            error
+            error.message
         );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to create review",
-            error: error.message
+            message: "Failed to create review"
         });
     }
 };
@@ -209,13 +219,12 @@ const getAllReviews = async (req, res) => {
 
         console.error(
             "Get reviews error:",
-            error
+            error.message
         );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to get reviews",
-            error: error.message
+            message: "Failed to get reviews"
         });
     }
 };
@@ -262,13 +271,12 @@ const getReviewById = async (req, res) => {
 
         console.error(
             "Get review error:",
-            error
+            error.message
         );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to get review",
-            error: error.message
+            message: "Failed to get review"
         });
     }
 };
@@ -276,7 +284,7 @@ const getReviewById = async (req, res) => {
 
 
 // ==========================================
-// STAFF RESPONSE
+// ADMIN RESPONSE TO REVIEW
 // ==========================================
 
 const respondToReview = async (req, res) => {
@@ -290,10 +298,13 @@ const respondToReview = async (req, res) => {
 
 
         // ==========================================
-        // VALIDATE STAFF RESPONSE
+        // VALIDATE RESPONSE
         // ==========================================
 
-        if (!staffResponse) {
+        if (
+            !staffResponse ||
+            !String(staffResponse).trim()
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Staff response is required"
@@ -322,7 +333,7 @@ const respondToReview = async (req, res) => {
 
 
         // ==========================================
-        // UPDATE STAFF RESPONSE
+        // UPDATE RESPONSE
         // ==========================================
 
         await db.query(
@@ -330,7 +341,7 @@ const respondToReview = async (req, res) => {
              SET staffResponse = ?
              WHERE id = ?`,
             [
-                staffResponse,
+                String(staffResponse).trim(),
                 reviewId
             ]
         );
@@ -363,13 +374,12 @@ const respondToReview = async (req, res) => {
 
         console.error(
             "Staff response error:",
-            error
+            error.message
         );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to add staff response",
-            error: error.message
+            message: "Failed to add staff response"
         });
     }
 };
@@ -410,13 +420,12 @@ const getReviewsByStaff = async (req, res) => {
 
         console.error(
             "Get staff reviews error:",
-            error
+            error.message
         );
 
         return res.status(500).json({
             success: false,
-            message: "Failed to get staff reviews",
-            error: error.message
+            message: "Failed to get staff reviews"
         });
     }
 };

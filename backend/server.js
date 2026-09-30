@@ -23,7 +23,7 @@ app.use(
 
 
 // ==========================================
-// ROUTES
+// ROUTES IMPORT
 // ==========================================
 
 const authRoutes =
@@ -122,8 +122,6 @@ app.use(
 const startAppointmentReminderJob =
     require("./jobs/appointmentReminder");
 
-startAppointmentReminderJob();
-
 
 // ==========================================
 // 404 ROUTE
@@ -143,10 +141,33 @@ app.use((req, res) => {
 // START SERVER
 // ==========================================
 
-app.listen(PORT, () => {
+const startServer = async () => {
 
-    console.log(
-        `Server is running on http://localhost:${PORT}`
-    );
+    try {
 
-});
+        // Start appointment reminder job
+        startAppointmentReminderJob();
+
+
+        // Start Express server
+        app.listen(PORT, () => {
+
+            console.log(
+                `Server is running on http://localhost:${PORT}`
+            );
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Failed to start server:",
+            error.message
+        );
+
+    }
+
+};
+
+
+startServer();

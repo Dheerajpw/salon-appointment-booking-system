@@ -2,10 +2,16 @@ const express = require("express");
 
 const router = express.Router();
 
+// ==========================================
+// MIDDLEWARE
+// ==========================================
 
-// ========================================
-// Appointment Controller
-// ========================================
+const authMiddleware =
+    require("../middleware/authMiddleware");
+
+// ==========================================
+// CONTROLLER
+// ==========================================
 
 const {
     createAppointment,
@@ -16,65 +22,68 @@ const {
     rescheduleAppointment
 } = require("../controllers/appointmentController");
 
-
-// ========================================
-// Create Appointment
-// ========================================
+// ==========================================
+// CREATE APPOINTMENT
+// ==========================================
 
 router.post(
     "/",
+    authMiddleware,
     createAppointment
 );
 
-
-// ========================================
-// Get All Appointments
-// ========================================
+// ==========================================
+// GET MY APPOINTMENTS
+// ==========================================
 
 router.get(
     "/",
+    authMiddleware,
     getAppointments
 );
 
-
-// ========================================
-// Get Appointment By ID
-// ========================================
+// ==========================================
+// GET APPOINTMENT BY ID
+// ==========================================
 
 router.get(
     "/:id",
+    authMiddleware,
     getAppointmentById
 );
 
-
-// ========================================
-// Update Status
-// ========================================
+// ==========================================
+// UPDATE APPOINTMENT STATUS
+// ==========================================
 
 router.put(
     "/:id/status",
+    authMiddleware,
     updateAppointmentStatus
 );
 
-
-// ========================================
-// Cancel Appointment
-// ========================================
+// ==========================================
+// CANCEL APPOINTMENT
+// ==========================================
 
 router.put(
     "/:id/cancel",
+    authMiddleware,
     cancelAppointment
 );
 
-
-// ========================================
-// Reschedule Appointment
-// ========================================
+// ==========================================
+// RESCHEDULE APPOINTMENT
+// ==========================================
 
 router.put(
     "/:id/reschedule",
+    authMiddleware,
     rescheduleAppointment
 );
 
+// ==========================================
+// EXPORT ROUTER
+// ==========================================
 
 module.exports = router;

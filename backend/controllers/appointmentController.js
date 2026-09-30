@@ -8,9 +8,41 @@ const db = require("../config/db");
 const createAppointment = async (req, res) => {
     try {
 
+        const userId = req.user.id;
+
+
+        // ========================================
+        // Get User From Database
+        // ========================================
+
+        const [users] = await db.query(
+            `SELECT
+                id,
+                name,
+                email,
+                phone
+             FROM users
+             WHERE id = ?`,
+            [userId]
+        );
+
+
+        if (users.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+
+
+        const user = users[0];
+
+
+        // ========================================
+        // Get Appointment Data
+        // ========================================
+
         const {
-            customerName,
-            customerEmail,
             customerPhone,
             serviceId,
             staffId,
@@ -25,8 +57,6 @@ const createAppointment = async (req, res) => {
         // ========================================
 
         if (
-            !customerName ||
-            !customerEmail ||
             !serviceId ||
             !staffId ||
             !appointmentDate ||
@@ -175,6 +205,14 @@ const createAppointment = async (req, res) => {
         );
 
 
+        if (Number.isNaN(dateObject.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid appointment date"
+            });
+        }
+
+
         const days = [
             "Sunday",
             "Monday",
@@ -220,7 +258,7 @@ const createAppointment = async (req, res) => {
 
         const [overlappingAppointments] =
             await db.query(
-                `SELECT *
+                `SELECT id
                  FROM appointments
                  WHERE staffId = ?
                  AND appointmentDate = ?
@@ -252,6 +290,7 @@ const createAppointment = async (req, res) => {
         const [result] = await db.query(
             `INSERT INTO appointments
             (
+                userId,
                 customerName,
                 customerEmail,
                 customerPhone,
@@ -264,11 +303,12 @@ const createAppointment = async (req, res) => {
                 notes,
                 reminderSent
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'BOOKED', ?, FALSE)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'BOOKED', ?, FALSE)`,
             [
-                customerName,
-                customerEmail,
-                customerPhone || null,
+                user.id,
+                user.name,
+                user.email,
+                user.phone || customerPhone || null,
                 serviceId,
                 staffId,
                 appointmentDate,
@@ -317,19 +357,22 @@ const createAppointment = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Failed to create appointment",
-            error: error.message
+            message: "Failed to create appointment"
         });
     }
 };
 
 
+
 // ========================================
-// Get All Appointments
+// Get My Appointments
 // ========================================
 
 const getAppointments = async (req, res) => {
     try {
+
+        const userId = req.user.id;
+
 
         const [appointments] = await db.query(
             `SELECT
@@ -341,9 +384,11 @@ const getAppointments = async (req, res) => {
                 ON a.serviceId = s.id
              JOIN staff st
                 ON a.staffId = st.id
+             WHERE a.userId = ?
              ORDER BY
                 a.appointmentDate ASC,
-                a.startTime ASC`
+                a.startTime ASC`,
+            [userId]
         );
 
 
@@ -362,11 +407,11 @@ const getAppointments = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Failed to get appointments",
-            error: error.message
+            message: "Failed to get appointments"
         });
     }
 };
+
 
 
 // ========================================
@@ -377,6 +422,7 @@ const getAppointmentById = async (req, res) => {
     try {
 
         const appointmentId = req.params.id;
+        const userId = req.user.id;
 
 
         const [appointments] = await db.query(
@@ -389,8 +435,12 @@ const getAppointmentById = async (req, res) => {
                 ON a.serviceId = s.id
              JOIN staff st
                 ON a.staffId = st.id
-             WHERE a.id = ?`,
-            [appointmentId]
+             WHERE a.id = ?
+             AND a.userId = ?`,
+            [
+                appointmentId,
+                userId
+            ]
         );
 
 
@@ -416,19 +466,32 @@ const getAppointmentById = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Failed to get appointment",
-            error: error.message
+            message: "Failed to get appointment"
         });
     }
 };
 
 
+
 // ========================================
 // Update Appointment Status
+// ADMIN ONLY
 // ========================================
 
 const updateAppointmentStatus = async (req, res) => {
     try {
+
+        // ========================================
+        // Check Admin Role
+        // ========================================
+
+        if (req.user.role !== "ADMIN") {
+            return res.status(403).json({
+                success: false,
+                message: "Admin access required"
+            });
+        }
+
 
         const appointmentId = req.params.id;
 
@@ -504,32 +567,38 @@ const updateAppointmentStatus = async (req, res) => {
         return res.status(500).json({
             success: false,
             message:
-                "Failed to update appointment status",
-            error: error.message
+                "Failed to update appointment status"
         });
     }
 };
 
 
+
 // ========================================
 // Cancel Appointment
+// CUSTOMER OWN APPOINTMENT ONLY
 // ========================================
 
 const cancelAppointment = async (req, res) => {
     try {
 
         const appointmentId = req.params.id;
+        const userId = req.user.id;
 
 
         // ========================================
-        // Get Appointment
+        // Get ONLY User's Appointment
         // ========================================
 
         const [appointments] = await db.query(
             `SELECT *
              FROM appointments
-             WHERE id = ?`,
-            [appointmentId]
+             WHERE id = ?
+             AND userId = ?`,
+            [
+                appointmentId,
+                userId
+            ]
         );
 
 
@@ -572,8 +641,12 @@ const cancelAppointment = async (req, res) => {
         await db.query(
             `UPDATE appointments
              SET status = 'CANCELLED'
-             WHERE id = ?`,
-            [appointmentId]
+             WHERE id = ?
+             AND userId = ?`,
+            [
+                appointmentId,
+                userId
+            ]
         );
 
 
@@ -593,27 +666,29 @@ const cancelAppointment = async (req, res) => {
         return res.status(500).json({
             success: false,
             message:
-                "Failed to cancel appointment",
-            error: error.message
+                "Failed to cancel appointment"
         });
     }
 };
 
 
+
 // ========================================
 // Reschedule Appointment
+// CUSTOMER OWN APPOINTMENT ONLY
+// END TIME CALCULATED FROM SERVICE DURATION
 // ========================================
 
 const rescheduleAppointment = async (req, res) => {
     try {
 
         const appointmentId = req.params.id;
+        const userId = req.user.id;
 
 
         const {
             appointmentDate,
-            startTime,
-            endTime
+            startTime
         } = req.body;
 
 
@@ -623,39 +698,35 @@ const rescheduleAppointment = async (req, res) => {
 
         if (
             !appointmentDate ||
-            !startTime ||
-            !endTime
+            !startTime
         ) {
             return res.status(400).json({
                 success: false,
                 message:
-                    "Appointment date, start time and end time are required"
+                    "Appointment date and start time are required"
             });
         }
 
 
         // ========================================
-        // Validate Time
-        // ========================================
-
-        if (startTime >= endTime) {
-            return res.status(400).json({
-                success: false,
-                message:
-                    "Start time must be before end time"
-            });
-        }
-
-
-        // ========================================
-        // Get Existing Appointment
+        // Get ONLY User's Appointment
+        // Also Get Service Duration
         // ========================================
 
         const [appointments] = await db.query(
-            `SELECT *
-             FROM appointments
-             WHERE id = ?`,
-            [appointmentId]
+            `SELECT
+                a.*,
+                s.duration AS serviceDuration,
+                s.name AS serviceName
+             FROM appointments a
+             JOIN services s
+                ON a.serviceId = s.id
+             WHERE a.id = ?
+             AND a.userId = ?`,
+            [
+                appointmentId,
+                userId
+            ]
         );
 
 
@@ -687,13 +758,119 @@ const rescheduleAppointment = async (req, res) => {
 
 
         // ========================================
-        // Check Availability
+        // Validate Start Time Format
+        // ========================================
+
+        const timeParts = startTime.split(":");
+
+        if (
+            timeParts.length < 2 ||
+            Number.isNaN(Number(timeParts[0])) ||
+            Number.isNaN(Number(timeParts[1]))
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid start time"
+            });
+        }
+
+
+        const hours = Number(timeParts[0]);
+        const minutes = Number(timeParts[1]);
+        const seconds = Number(timeParts[2] || 0);
+
+
+        if (
+            hours < 0 ||
+            hours > 23 ||
+            minutes < 0 ||
+            minutes > 59 ||
+            seconds < 0 ||
+            seconds > 59
+        ) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid start time"
+            });
+        }
+
+
+        // ========================================
+        // Calculate End Time
+        // FROM SERVICE DURATION
+        // ========================================
+
+        const startDate = new Date();
+
+        startDate.setHours(
+            hours,
+            minutes,
+            seconds,
+            0
+        );
+
+
+        const endDate = new Date(
+            startDate.getTime() +
+            Number(appointment.serviceDuration) *
+            60 *
+            1000
+        );
+
+
+        // ========================================
+        // Prevent Crossing Midnight
+        // ========================================
+
+        if (
+            endDate.getDate() !==
+            startDate.getDate()
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Appointment cannot extend to the next day"
+            });
+        }
+
+
+        const endHours = String(
+            endDate.getHours()
+        ).padStart(2, "0");
+
+        const endMinutes = String(
+            endDate.getMinutes()
+        ).padStart(2, "0");
+
+        const endSeconds = String(
+            endDate.getSeconds()
+        ).padStart(2, "0");
+
+
+        const endTime =
+            `${endHours}:${endMinutes}:${endSeconds}`;
+
+
+        // ========================================
+        // Validate Appointment Date
         // ========================================
 
         const dateObject = new Date(
             `${appointmentDate}T00:00:00`
         );
 
+
+        if (Number.isNaN(dateObject.getTime())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid appointment date"
+            });
+        }
+
+
+        // ========================================
+        // Get Day Of Week
+        // ========================================
 
         const days = [
             "Sunday",
@@ -709,6 +886,10 @@ const rescheduleAppointment = async (req, res) => {
         const dayOfWeek =
             days[dateObject.getDay()];
 
+
+        // ========================================
+        // Check Salon Availability
+        // ========================================
 
         const [availability] = await db.query(
             `SELECT *
@@ -778,12 +959,14 @@ const rescheduleAppointment = async (req, res) => {
                 startTime = ?,
                 endTime = ?,
                 reminderSent = FALSE
-             WHERE id = ?`,
+             WHERE id = ?
+             AND userId = ?`,
             [
                 appointmentDate,
                 startTime,
                 endTime,
-                appointmentId
+                appointmentId,
+                userId
             ]
         );
 
@@ -812,10 +995,18 @@ const rescheduleAppointment = async (req, res) => {
                     ON a.serviceId = s.id
                  JOIN staff st
                     ON a.staffId = st.id
-                 WHERE a.id = ?`,
-                [appointmentId]
+                 WHERE a.id = ?
+                 AND a.userId = ?`,
+                [
+                    appointmentId,
+                    userId
+                ]
             );
 
+
+        // ========================================
+        // Success Response
+        // ========================================
 
         return res.status(200).json({
             success: true,
@@ -834,15 +1025,15 @@ const rescheduleAppointment = async (req, res) => {
         return res.status(500).json({
             success: false,
             message:
-                "Failed to reschedule appointment",
-            error: error.message
+                "Failed to reschedule appointment"
         });
     }
 };
 
 
+
 // ========================================
-// Export
+// EXPORT
 // ========================================
 
 module.exports = {

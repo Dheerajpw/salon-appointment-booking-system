@@ -2,41 +2,57 @@ const express = require("express");
 
 const router = express.Router();
 
+const adminMiddleware =
+    require("../middleware/adminMiddleware");
+
 const {
     createStaff,
     getStaff,
     getStaffById,
     updateStaff,
-    deleteStaff,
-    assignService,
-    getStaffServices,
-    removeService
+    deleteStaff
 } = require("../controllers/staffController");
 
+// ==========================================
+// PUBLIC ROUTES
+// ==========================================
 
-// Staff CRUD
-
-router.post("/", createStaff);
-
-router.get("/", getStaff);
-
-router.get("/:id", getStaffById);
-
-router.put("/:id", updateStaff);
-
-router.delete("/:id", deleteStaff);
-
-
-// Staff service assignment
-
-router.post("/:staffId/services", assignService);
-
-router.get("/:staffId/services", getStaffServices);
-
-router.delete(
-    "/:staffId/services/:serviceId",
-    removeService
+// Get all staff
+router.get(
+    "/",
+    getStaff
 );
 
+// Get staff by ID
+router.get(
+    "/:id",
+    getStaffById
+);
+
+
+// ==========================================
+// ADMIN ONLY ROUTES
+// ==========================================
+
+// Create staff
+router.post(
+    "/",
+    adminMiddleware,
+    createStaff
+);
+
+// Update staff
+router.put(
+    "/:id",
+    adminMiddleware,
+    updateStaff
+);
+
+// Delete staff
+router.delete(
+    "/:id",
+    adminMiddleware,
+    deleteStaff
+);
 
 module.exports = router;

@@ -2,6 +2,9 @@ const express = require("express");
 
 const router = express.Router();
 
+const adminMiddleware =
+    require("../middleware/adminMiddleware");
+
 const {
     createAvailability,
     getAvailability,
@@ -11,15 +14,47 @@ const {
 } = require("../controllers/availabilityController");
 
 
-router.post("/", createAvailability);
+// ==========================================
+// PUBLIC ROUTES
+// ==========================================
 
-router.get("/", getAvailability);
+// Get all availability
+router.get(
+    "/",
+    getAvailability
+);
 
-router.get("/:id", getAvailabilityById);
+// Get availability by ID
+router.get(
+    "/:id",
+    getAvailabilityById
+);
 
-router.put("/:id", updateAvailability);
 
-router.delete("/:id", deleteAvailability);
+// ==========================================
+// ADMIN ONLY ROUTES
+// ==========================================
+
+// Create availability
+router.post(
+    "/",
+    adminMiddleware,
+    createAvailability
+);
+
+// Update availability
+router.put(
+    "/:id",
+    adminMiddleware,
+    updateAvailability
+);
+
+// Delete availability
+router.delete(
+    "/:id",
+    adminMiddleware,
+    deleteAvailability
+);
 
 
 module.exports = router;
