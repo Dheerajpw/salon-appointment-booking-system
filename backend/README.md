@@ -1,146 +1,175 @@
 # Velora Salon & Beauty
 
-Velora Salon & Beauty is a web-based salon appointment booking system developed as a Node.js capstone project.
+Velora Salon & Beauty is a full-stack salon appointment booking system that allows customers to explore salon services, check staff availability, book appointments, make online payments, and manage their bookings.
 
-The main purpose of this project is to make salon appointment management easier for both customers and salon administrators.
+The project also includes an admin dashboard for managing users, services, staff, appointments, and reviews.
+
+## Live Project
+
+🌐 **Live Website:**
+https://timely-starship-a0cc85.netlify.app/
+
+🎥 **Demo Video:**
+https://youtu.be/BAQYdAtBE8w
+
+💻 **GitHub Repository:**
+https://github.com/Dheerajpw/salon-appointment-booking-system
+
+---
 
 ## Problem
 
-In a traditional salon, customers may have to call or visit the salon to:
+Managing salon appointments manually can lead to problems such as:
 
-* Check available services
-* Ask about staff availability
-* Book an appointment
-* Check appointment details
-
-For the salon, managing customers, staff, services and appointments manually can also become difficult.
+* Double booking
+* Difficulty managing staff availability
+* Manual appointment tracking
+* No centralized customer information
+* Difficulty managing salon services and staff
 
 ## Solution
 
-Velora provides an online system where customers can create an account, view services, select staff, check availability and book appointments.
+Velora Salon & Beauty provides an online system where customers can:
 
-The admin can manage users, services, staff, appointments and reviews from the Admin Dashboard.
+* View salon services
+* View available staff
+* Register and login
+* Book appointments
+* Make online payments
+* View their appointments
+* Manage their bookings
+
+Admins can manage the salon through a separate admin dashboard.
 
 ---
 
 ## Features
 
-### Customer
+### Customer Features
 
-* Register and login
+* User registration and login
 * JWT-based authentication
-* View salon services
-* View staff
-* Check appointment availability
-* Book an appointment
-* View appointments
-* Cancel/manage appointments
-* Make payment
-* Submit reviews
-* Receive appointment reminders
-* Update profile
+* Browse salon services
+* View staff members
+* Book appointments
+* Check available time slots
+* Prevent double booking
+* View appointment history
+* Cancel appointments
+* Online payment integration
+* Appointment status tracking
+* Appointment reminder emails
+* Customer reviews
 
-### Admin
+### Admin Features
 
-* Admin login
-* Admin Dashboard
+* Admin authentication and authorization
+* Admin dashboard
 * View dashboard statistics
 * Manage users
-* Edit users
-* Delete users
-* Make a customer an admin
-* Remove admin access
+* Manage customer roles
 * Manage services
 * Manage staff
 * Manage appointments
-* Update appointment status
-* Manage customer reviews
-* Respond to reviews
+* View reviews
+* Monitor booking activity
 
 ---
 
-## Important Business Logic
+## Appointment Booking Logic
 
-### Appointment Availability
+The appointment booking system performs several validations before creating a booking.
 
-Before creating an appointment, the backend checks:
+The backend checks:
 
-* Selected service
-* Selected staff
-* Appointment date
-* Appointment time
-* Staff availability
+1. Whether the selected service exists and is active.
+2. Whether the selected staff member exists and is active.
+3. Whether the staff member provides the selected service.
+4. Whether the staff member is available on the selected day.
+5. Whether the selected time falls within the staff availability.
+6. Whether another booking already exists for the same staff member, date, and time.
 
-This helps prevent invalid bookings.
-
-### Double Booking Prevention
-
-The backend checks whether the selected staff member already has a `BOOKED` or `CONFIRMED` appointment at the requested time.
-
-If a conflicting appointment exists, the new appointment is rejected.
-
-This prevents two customers from booking the same staff member at the same time.
+This helps prevent duplicate or overlapping appointments.
 
 ---
 
 ## Authentication
 
-The project uses JWT authentication.
+The application uses JWT-based authentication.
 
 During login:
 
-1. User enters email and password.
-2. Backend finds the user in MySQL.
-3. Password is checked using bcrypt.
-4. A JWT token is generated.
-5. The token contains the user's ID, email and role.
-6. The frontend stores the token.
-7. Protected APIs require the token.
+1. User credentials are verified.
+2. Passwords are checked using bcrypt.
+3. A JWT token is generated.
+4. The token contains the user's ID, email, and role.
+5. Protected routes verify the token before allowing access.
 
-The project has two roles:
-
-* `CUSTOMER`
-* `ADMIN`
-
-New users registering through the website are created as customers.
-
-An existing customer can be promoted to admin by an authenticated admin from the Admin Dashboard.
+Passwords are not stored as plain text.
 
 ---
 
-## Admin Authorization
+## Role-Based Authorization
 
-Admin APIs are protected using middleware.
+The application supports different user roles.
 
-The backend verifies the JWT and checks the user's role.
+### CUSTOMER
 
-Only users with:
+Customers can:
 
+* Manage their account
+* Book appointments
+* View appointments
+* Make payments
+* Submit reviews
 
-role = ADMIN
+### ADMIN
 
+Admins can access administrative functionality such as:
 
-can access protected admin APIs.
+* User management
+* Service management
+* Staff management
+* Appointment management
+* Dashboard statistics
 
-The frontend hides the Admin Dashboard from normal customers, but the main authorization is handled by the backend.
+Admin routes are protected using role-based middleware.
 
 ---
 
-## Payment
+## Payment Integration
 
-The project includes Razorpay payment integration.
+The project includes online payment integration for appointment payments.
 
-The payment flow is handled through the backend so that payment-related verification is not trusted only from the frontend.
+The payment flow is:
+
+```text
+Customer
+   ↓
+Create Appointment
+   ↓
+Create Payment Order
+   ↓
+Open Payment Gateway
+   ↓
+Complete Payment
+   ↓
+Verify Payment
+   ↓
+Update Payment Status
+```
+
+Payment verification is handled on the backend before updating the payment status.
 
 ---
 
-## Appointment Reminder
+## Appointment Reminder System
 
-The project contains a scheduled appointment reminder job.
+The backend includes an automated appointment reminder system.
 
-It checks relevant appointments and sends reminder emails to customers.
+A scheduled cron job checks for upcoming appointments and sends reminder emails to customers.
 
-A reminder status is maintained so that an appointment is not unnecessarily processed repeatedly.
+The system also tracks whether a reminder has already been sent to avoid sending duplicate reminders.
 
 ---
 
@@ -148,9 +177,10 @@ A reminder status is maintained so that an appointment is not unnecessarily proc
 
 ### Frontend
 
-* HTML
-* CSS
+* HTML5
+* CSS3
 * JavaScript
+* Responsive Design
 
 ### Backend
 
@@ -158,30 +188,40 @@ A reminder status is maintained so that an appointment is not unnecessarily proc
 * Express.js
 * REST APIs
 * JWT
-* bcryptjs
-* CORS
-* dotenv
+* bcrypt
+* Cron Jobs
 
 ### Database
 
 * MySQL
-* mysql2
 
-### Other
+### Payment
 
-* Razorpay
-* Gmail/Email service
+* Online Payment Gateway Integration
+
+### Email
+
+* Gmail API
+* Appointment Reminder Emails
+
+### Deployment
+
+* AWS EC2
+* PM2
+* Netlify
+
+### Development Tools
+
+* VS Code
 * Postman
 * Git
 * GitHub
-* AWS EC2
-* PM2
 
 ---
 
 ## Project Structure
 
-
+```text
 salon-appointment-booking-system/
 │
 ├── backend/
@@ -194,37 +234,67 @@ salon-appointment-booking-system/
 │   ├── services/
 │   ├── utils/
 │   ├── server.js
-│   └── package.json
+│   ├── package.json
+│   └── .env
 │
 ├── frontend/
 │   ├── css/
 │   │   └── style.css
+│   │
+│   ├── images/
+│   │   ├── hero.jpg
+│   │   ├── haircut.jpg
+│   │   ├── facial.jpg
+│   │   ├── manicure.jpg
+│   │   ├── pedicure.jpg
+│   │   └── hair-styling.jpg
+│   │
 │   ├── js/
 │   │   └── script.js
-│   ├── images/
+│   │
 │   └── index.html
 │
-├── README.md
-└── .gitignore
-
+├── .gitignore
+└── README.md
+```
 
 ---
 
 ## Database
 
-The application uses MySQL.
+The application uses MySQL as the primary database.
 
-The main tables/entities used by the application include:
+The database contains data related to:
 
 * Users
 * Services
 * Staff
+* Staff services
 * Appointments
 * Reviews
-* Payments
 * Availability
+* Payments
 
-Appointments are connected with the selected service and staff member.
+Relationships between tables are used to connect customers, appointments, services, and staff members.
+
+---
+
+## API Modules
+
+The backend is organized into separate route modules for different features.
+
+Main API modules include:
+
+* Authentication
+* Services
+* Staff
+* Availability
+* Appointments
+* Payments
+* Reviews
+* Admin
+
+The backend follows a controller and route based structure to keep the application organized.
 
 ---
 
@@ -232,22 +302,182 @@ Appointments are connected with the selected service and staff member.
 
 ### 1. Clone the repository
 
+```bash
+git clone https://github.com/Dheerajpw/salon-appointment-booking-system.git
+```
 
-git clone YOUR_GITHUB_REPOSITORY_URL
+### 2. Go to the project
 
-
-Then:
-
-
+```bash
 cd salon-appointment-booking-system
+```
 
+### 3. Install backend dependencies
 
-### 2. Backend
-
-Go to the backend folder:
-
-
+```bash
 cd backend
+npm install
+```
 
+### 4. Configure environment variables
 
-Install
+Create a `.env` file inside the backend folder.
+
+Example:
+
+```env
+PORT=5000
+
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=salon_booking
+DB_PORT=3306
+
+JWT_SECRET=your_jwt_secret
+
+RAZORPAY_KEY_ID=your_key
+RAZORPAY_KEY_SECRET=your_secret
+```
+
+Use your own credentials for local development.
+
+### 5. Start the backend
+
+```bash
+node server.js
+```
+
+The backend will run on:
+
+```text
+http://localhost:5000
+```
+
+### 6. Run the frontend
+
+Open:
+
+```text
+frontend/index.html
+```
+
+in a browser, or use a local development server such as VS Code Live Server.
+
+---
+
+## Live Backend
+
+The backend is deployed on an AWS EC2 instance.
+
+Live API:
+
+```text
+http://51.20.70.161:5000
+```
+
+The root endpoint returns:
+
+```json
+{
+  "success": true,
+  "message": "Salon Appointment Booking API is running"
+}
+```
+
+---
+
+## Deployment
+
+The backend is deployed on an AWS EC2 instance and managed using PM2.
+
+The frontend is deployed using Netlify.
+
+```text
+Frontend
+    ↓
+Netlify
+    ↓
+Node.js / Express Backend
+    ↓
+AWS EC2
+    ↓
+MySQL Database
+```
+
+---
+
+## Limitations
+
+Some features depend on external services and environment configuration.
+
+For example:
+
+* Payment gateway credentials are required for payment processing.
+* Gmail API credentials are required for reminder emails.
+* MySQL configuration is required for local backend setup.
+* Environment variables must be configured before running the backend locally.
+
+---
+
+## Possible Future Improvements
+
+Some improvements that can be added in the future include:
+
+* Salon owner notifications
+* WhatsApp appointment notifications
+* Advanced appointment calendar
+* Multiple salon branches
+* Staff leave management
+* Customer profile management
+* Better analytics and reporting
+* Automated deployment using CI/CD
+* More advanced search and filtering
+
+---
+
+## What I Learned
+
+While building this project, I worked with:
+
+* Node.js and Express.js
+* REST API development
+* MySQL database design
+* Authentication using JWT
+* Password hashing using bcrypt
+* Middleware and role-based authorization
+* Appointment availability logic
+* Payment integration
+* Email automation
+* Cron jobs
+* AWS EC2 deployment
+* PM2 process management
+* Git and GitHub
+* Frontend and backend integration
+
+This project helped me understand how different parts of a full-stack application work together to solve a real-world problem.
+
+---
+
+## Author
+
+**Dheeraj Kumar**
+
+GitHub:
+https://github.com/Dheerajpw
+
+LinkedIn:
+https://linkedin.com/in/dheeraj-kumar-8104342bb
+
+---
+
+## Project Links
+
+🌐 **Live Website:**
+https://timely-starship-a0cc85.netlify.app/
+
+🎥 **Demo Video:**
+https://youtu.be/BAQYdAtBE8w
+
+💻 **GitHub Repository:**
+https://github.com/Dheerajpw/salon-appointment-booking-system
