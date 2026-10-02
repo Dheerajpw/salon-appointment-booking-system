@@ -2,22 +2,6 @@ const express = require("express");
 
 const router = express.Router();
 
-
-// ==========================================
-// MIDDLEWARE
-// ==========================================
-
-const authMiddleware =
-    require("../middleware/authMiddleware");
-
-const adminMiddleware =
-    require("../middleware/adminMiddleware");
-
-
-// ==========================================
-// CONTROLLERS
-// ==========================================
-
 const {
     createReview,
     getAllReviews,
@@ -26,39 +10,26 @@ const {
     getReviewsByStaff
 } = require("../controllers/reviewController");
 
+const authMiddleware = require("../middleware/authMiddleware");
+const adminMiddleware = require("../middleware/adminMiddleware");
 
-// ==========================================
-// PUBLIC ROUTES
-// ==========================================
 
-// Get all reviews
+// =====================================================
+// 1. GET ALL REVIEWS
+// Public
+// =====================================================
+
 router.get(
     "/",
     getAllReviews
 );
 
 
-// Get reviews by staff
-router.get(
-    "/staff/:staffId",
-    getReviewsByStaff
-);
+// =====================================================
+// 2. CREATE REVIEW
+// Login required
+// =====================================================
 
-
-// Get review by ID
-router.get(
-    "/:id",
-    getReviewById
-);
-
-
-// ==========================================
-// CUSTOMER ROUTES
-// ==========================================
-
-// Create review
-// User must be logged in
-// Controller checks appointment ownership
 router.post(
     "/",
     authMiddleware,
@@ -66,11 +37,33 @@ router.post(
 );
 
 
-// ==========================================
-// ADMIN ROUTES
-// ==========================================
+// =====================================================
+// 3. GET REVIEW BY ID
+// Public
+// =====================================================
 
-// Respond to review
+router.get(
+    "/:id",
+    getReviewById
+);
+
+
+// =====================================================
+// 4. GET REVIEWS BY STAFF
+// Public
+// =====================================================
+
+router.get(
+    "/staff/:staffId",
+    getReviewsByStaff
+);
+
+
+// =====================================================
+// 5. ADMIN RESPOND TO REVIEW
+// Admin token required
+// =====================================================
+
 router.put(
     "/:id/respond",
     adminMiddleware,
