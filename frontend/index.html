@@ -3,4486 +3,1652 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Salon Appointment Booking System</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-    <!-- Razorpay -->
+    <meta name="description"
+        content="Premium Salon Appointment Booking System - Book salon services, manage appointments and payments online.">
+
+    <title>Velora Salon | Appointment Booking</title>
+
+
+    <!-- =====================================================
+         RAZORPAY
+    ====================================================== -->
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
 
-        body {
-            background: #f5f5f5;
-            color: #222;
-        }
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
 
-        /* ================= HEADER ================= */
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
 
-        header {
-            background: #111827;
-            color: white;
-            padding: 16px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
 
-        .logo {
-            font-size: 23px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet">
 
-        nav {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-        }
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
+    <!-- =====================================================
+         CSS
+    ====================================================== -->
 
-        nav a:hover {
-            color: #fbbf24;
-        }
+    <link rel="stylesheet"
+        href="./css/style.css">
 
-        #adminNav {
-            display: none;
-        }
-
-        /* ================= PAGE ================= */
-
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* ================= HERO ================= */
-
-        .hero {
-            min-height: 500px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 50px 20px;
-
-            background:
-                linear-gradient(
-                    rgba(17, 24, 39, 0.88),
-                    rgba(17, 24, 39, 0.88)
-                );
-        }
-
-        .hero-content {
-            max-width: 800px;
-            color: white;
-        }
-
-        .hero h1 {
-            font-size: 46px;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 18px;
-            line-height: 1.7;
-            margin-bottom: 12px;
-        }
-
-        /* ================= BUTTON ================= */
-
-        .btn {
-            border: none;
-            background: #f59e0b;
-            color: white;
-            padding: 12px 22px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 15px;
-            margin: 5px;
-        }
-
-        .btn:hover {
-            background: #d97706;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-        }
-
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-
-        .btn-success {
-            background: #16a34a;
-        }
-
-        .btn-success:hover {
-            background: #15803d;
-        }
-
-        .btn-secondary {
-            background: #4b5563;
-        }
-
-        /* ================= SECTION ================= */
-
-        section {
-            padding: 55px 6%;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .section-title h2 {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .section-title p {
-            color: #666;
-        }
-
-        /* ================= CARDS ================= */
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-        }
-
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .card h3 {
-            margin-bottom: 12px;
-        }
-
-        .card p {
-            color: #555;
-            line-height: 1.6;
-            margin: 7px 0;
-        }
-
-        /* ================= FORM ================= */
-
-        .form-container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .form-container h2 {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-        }
-
-        /* ================= MESSAGE ================= */
-
-        .message {
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 6px;
-            display: none;
-        }
-
-        .success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* ================= ADMIN ================= */
-
-        .admin-box {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .stat-card {
-            background: #111827;
-            color: white;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-card h2 {
-            font-size: 32px;
-            margin-top: 10px;
-        }
-
-        .table-wrapper {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #111827;
-            color: white;
-        }
-
-        /* ================= FOOTER ================= */
-
-        footer {
-            background: #111827;
-            color: white;
-            text-align: center;
-            padding: 25px;
-            margin-top: 30px;
-        }
-
-        /* ================= RESPONSIVE ================= */
-
-        @media (max-width: 1000px) {
-
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            header {
-                flex-direction: column;
-            }
-
-            nav {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 {
-                font-size: 32px;
-            }
-
-            nav {
-                gap: 10px;
-            }
-        }
-    </style>
 </head>
+
 
 <body>
 
-    <!-- ===================================================== -->
-    <!-- HEADER -->
-    <!-- ===================================================== -->
 
-    <header>
+    <!-- =====================================================
+         GLOBAL MESSAGE
+    ====================================================== -->
 
-        <div class="logo">
-            Salon Booking System
+    <div id="message"
+        class="message">
+    </div>
+
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header class="navbar">
+
+        <div class="nav-container">
+
+
+            <a href="#"
+                class="brand"
+                onclick="showPage('home'); return false;">
+
+                <div class="brand-icon">
+                    V
+                </div>
+
+                <div class="brand-text">
+
+                    <span class="brand-name">
+                        VELORA
+                    </span>
+
+                    <span class="brand-subtitle">
+                        SALON & BEAUTY
+                    </span>
+
+                </div>
+
+            </a>
+
+
+            <button
+                class="mobile-menu-btn"
+                onclick="toggleMobileMenu()"
+                aria-label="Toggle navigation">
+
+                ☰
+
+            </button>
+
+
+            <nav id="mainNav"
+                class="nav-links">
+
+
+                <a href="#"
+                    class="nav-link active"
+                    onclick="showPage('home'); closeMobileMenu(); return false;">
+
+                    Home
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('services'); closeMobileMenu(); return false;">
+
+                    Services
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('staff'); closeMobileMenu(); return false;">
+
+                    Our Team
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('register'); closeMobileMenu(); return false;">
+
+                    Register
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('login'); closeMobileMenu(); return false;">
+
+                    Login
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('profile'); closeMobileMenu(); return false;">
+
+                    Profile
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('booking'); closeMobileMenu(); return false;">
+
+                    Book Appointment
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('appointments'); closeMobileMenu(); return false;">
+
+                    My Appointments
+
+                </a>
+
+
+                <a href="#"
+                    class="nav-link"
+                    onclick="showPage('reviews'); closeMobileMenu(); return false;">
+
+                    My Reviews
+
+                </a>
+
+
+                <!-- =================================================
+                     ADMIN
+                ================================================== -->
+
+                <a href="#"
+                    id="adminNav"
+                    class="nav-link admin-nav"
+                    style="display:none;"
+                    onclick="openAdminDashboard(); closeMobileMenu(); return false;">
+
+                    Admin
+
+                </a>
+
+
+                <button
+                    class="nav-logout"
+                    onclick="logout(); closeMobileMenu();">
+
+                    Logout
+
+                </button>
+
+
+            </nav>
+
         </div>
-
-        <nav>
-
-            <a onclick="showPage('home')">
-                Home
-            </a>
-
-            <a onclick="showPage('services')">
-                Services
-            </a>
-
-            <a onclick="showPage('staff')">
-                Staff
-            </a>
-
-            <a onclick="showPage('register')">
-                Register
-            </a>
-
-            <a onclick="showPage('login')">
-                Login
-            </a>
-
-            <a onclick="showPage('profile')">
-                Profile
-            </a>
-
-            <a onclick="showPage('book')">
-                Book Appointment
-            </a>
-
-            <a onclick="showPage('appointments')">
-                My Appointments
-            </a>
-
-            <a onclick="showPage('reviews')">
-                My Reviews
-            </a>
-
-          <a 
-    id="adminNav" 
-    onclick="showPage('admin'); openAdminDashboard();" 
-    style="display: none;" 
->
-    Admin Dashboard 
-</a>
-
-            
-    
-
-            <a onclick="logout()">
-                Logout
-            </a>
-
-        </nav>
 
     </header>
 
 
-    <!-- ===================================================== -->
-    <!-- HOME -->
-    <!-- ===================================================== -->
 
-    <div
-        id="home"
-        class="page active">
+    <!-- =====================================================
+         MAIN CONTENT
+    ====================================================== -->
 
-        <section class="hero">
+    <main>
 
-            <div class="hero-content">
+
+        <!-- =================================================
+             HOME PAGE
+        ================================================== -->
+
+        <section id="home"
+            class="page active-page">
+
+
+            <!-- =================================================
+                 HERO SECTION
+            ================================================== -->
+
+            <div class="hero">
+
+                <div class="hero-overlay"></div>
+
+                <div class="hero-content">
+
+
+                    <div class="hero-badge">
+
+                        ✦ PREMIUM SALON EXPERIENCE
+
+                    </div>
+
+
+                    <h1>
+
+                        Your Beauty.
+
+                        <br>
+
+                        <span>Your Moment.</span>
+
+                    </h1>
+
+
+                    <p>
+
+                        Discover exceptional beauty treatments,
+                        professional stylists and a relaxing salon
+                        experience — all in one place.
+
+                    </p>
+
+
+                    <div class="hero-actions">
+
+
+                        <button
+                            class="btn btn-primary btn-large"
+                            onclick="showPage('booking');">
+
+                            Book an Appointment
+
+                        </button>
+
+
+                        <button
+                            class="btn btn-outline btn-large"
+                            onclick="showPage('services');">
+
+                            Explore Services
+
+                        </button>
+
+
+                    </div>
+
+
+                    <div class="hero-stats">
+
+
+                        <div class="hero-stat">
+
+                            <strong>5+</strong>
+
+                            <span>
+                                Services
+                            </span>
+
+                        </div>
+
+
+                        <div class="hero-divider"></div>
+
+
+                        <div class="hero-stat">
+
+                            <strong>4+</strong>
+
+                            <span>
+                                Professionals
+                            </span>
+
+                        </div>
+
+
+                        <div class="hero-divider"></div>
+
+
+                        <div class="hero-stat">
+
+                            <strong>24/7</strong>
+
+                            <span>
+                                Online Booking
+                            </span>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 FEATURE SECTION
+            ================================================== -->
+
+            <div class="section">
+
+
+                <div class="section-heading">
+
+                    <span class="section-label">
+                        WHY VELORA
+                    </span>
+
+                    <h2>
+                        More Than Just A Salon
+                    </h2>
+
+                    <p>
+                        Everything you need for a seamless
+                        salon experience.
+                    </p>
+
+                </div>
+
+
+
+                <div class="feature-grid">
+
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            ✦
+                        </div>
+
+                        <h3>
+                            Expert Professionals
+                        </h3>
+
+                        <p>
+                            Get personalized services from
+                            experienced salon professionals.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            ◷
+                        </div>
+
+                        <h3>
+                            Easy Booking
+                        </h3>
+
+                        <p>
+                            Choose your service, stylist and
+                            preferred time in just a few clicks.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            ◈
+                        </div>
+
+                        <h3>
+                            Secure Payments
+                        </h3>
+
+                        <p>
+                            Pay securely online through our
+                            integrated payment system.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="feature-card">
+
+                        <div class="feature-icon">
+                            ♡
+                        </div>
+
+                        <h3>
+                            Personalized Experience
+                        </h3>
+
+                        <p>
+                            Save your profile, appointments and
+                            reviews in one convenient place.
+                        </p>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             SERVICES PAGE
+        ================================================== -->
+
+        <section id="services"
+            class="page">
+
+
+            <div class="page-header">
+
+                <span class="section-label">
+                    OUR SERVICES
+                </span>
 
                 <h1>
-                    Welcome to Salon Appointment Booking System
+                    Beauty & Wellness
                 </h1>
 
                 <p>
-                    Book salon services online easily.
+                    Choose from our carefully curated salon
+                    services.
                 </p>
+
+            </div>
+
+
+            <!--
+                Service cards and images are loaded
+                dynamically by script.js
+            -->
+
+            <div id="servicesContainer"
+                class="cards-grid">
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             STAFF PAGE
+        ================================================== -->
+
+        <section id="staff"
+            class="page">
+
+
+            <div class="page-header">
+
+                <span class="section-label">
+                    OUR TEAM
+                </span>
+
+                <h1>
+                    Meet Our Professionals
+                </h1>
 
                 <p>
-                    View services, staff, availability,
-                    appointments and make online payments.
+                    Experienced professionals dedicated to
+                    making you look and feel your best.
                 </p>
 
-                <br>
+            </div>
 
-                <button
-                    class="btn"
-                    onclick="showPage('book')">
 
-                    Book an Appointment
-
-                </button>
+            <div id="staffContainer"
+                class="cards-grid">
 
             </div>
+
 
         </section>
 
 
-        <section>
 
-            <div class="section-title">
+        <!-- =================================================
+             REGISTER PAGE
+        ================================================== -->
 
-                <h2>
-                    System Features
-                </h2>
+        <section id="register"
+            class="page">
+
+
+            <div class="form-page">
+
+
+                <div class="form-intro">
+
+                    <span class="section-label">
+                        JOIN VELORA
+                    </span>
+
+                    <h1>
+                        Create Your Account
+                    </h1>
+
+                    <p>
+                        Create your account to book appointments,
+                        manage your profile and track your salon
+                        visits.
+                    </p>
+
+                </div>
+
+
+
+                <form id="registerForm"
+                    class="form-card"
+                    onsubmit="registerUser(event); return false;">
+
+
+                    <div class="form-title">
+
+                        <h2>
+                            Create Account
+                        </h2>
+
+                        <p>
+                            Enter your details below.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="registerName">
+                            Full Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registerName"
+                            placeholder="Enter your full name"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="registerEmail">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="registerEmail"
+                            placeholder="you@example.com"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="registerPhone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="registerPhone"
+                            placeholder="Enter phone number"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="registerPassword">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="registerPassword"
+                            placeholder="Create a password"
+                            required>
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-full">
+
+                        Create Account
+
+                    </button>
+
+
+
+                    <p class="form-bottom-text">
+
+                        Already have an account?
+
+                        <a href="#"
+                            onclick="showPage('login'); return false;">
+
+                            Login
+
+                        </a>
+
+                    </p>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             LOGIN PAGE
+        ================================================== -->
+
+        <section id="login"
+            class="page">
+
+
+            <div class="form-page">
+
+
+                <div class="form-intro">
+
+                    <span class="section-label">
+                        WELCOME BACK
+                    </span>
+
+                    <h1>
+                        Sign In
+                    </h1>
+
+                    <p>
+                        Access your appointments, profile and
+                        personalized salon experience.
+                    </p>
+
+                </div>
+
+
+
+                <form id="loginForm"
+                    class="form-card"
+                    onsubmit="loginUser(event); return false;">
+
+
+                    <div class="form-title">
+
+                        <h2>
+                            Login to Your Account
+                        </h2>
+
+                        <p>
+                            Enter your registered credentials.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="loginEmail">
+                            Email Address
+                        </label>
+
+                        <input
+                            type="email"
+                            id="loginEmail"
+                            placeholder="you@example.com"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="loginPassword">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="loginPassword"
+                            placeholder="Enter your password"
+                            required>
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-full">
+
+                        Sign In
+
+                    </button>
+
+
+
+                    <p class="form-bottom-text">
+
+                        Don't have an account?
+
+                        <a href="#"
+                            onclick="showPage('register'); return false;">
+
+                            Create Account
+
+                        </a>
+
+                    </p>
+
+
+                </form>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             PROFILE PAGE
+        ================================================== -->
+
+        <section id="profile"
+            class="page">
+
+
+            <div class="page-header">
+
+                <span class="section-label">
+                    MY ACCOUNT
+                </span>
+
+                <h1>
+                    Your Profile
+                </h1>
 
                 <p>
-                    Complete salon appointment management system
+                    Manage your personal information.
                 </p>
 
             </div>
 
 
-            <div class="grid">
 
-                <div class="card">
+            <div class="profile-layout">
 
-                    <h3>
-                        User Authentication
+
+                <div class="profile-sidebar">
+
+                    <div class="profile-avatar">
+                        V
+                    </div>
+
+                    <h3 id="profileDisplayName">
+                        My Profile
                     </h3>
 
                     <p>
-                        Register, login and manage your profile.
+                        Salon Member
                     </p>
 
                 </div>
 
 
-                <div class="card">
 
-                    <h3>
-                        Services
-                    </h3>
-
-                    <p>
-                        View salon services, duration and pricing.
-                    </p>
-
-                </div>
+                <form id="profileForm"
+                    class="form-card profile-form"
+                    onsubmit="updateProfile(event); return false;">
 
 
-                <div class="card">
+                    <div class="form-title">
 
-                    <h3>
-                        Staff
-                    </h3>
+                        <h2>
+                            Personal Information
+                        </h2>
 
-                    <p>
-                        View staff profiles and specializations.
-                    </p>
+                        <p>
+                            Update your profile details.
+                        </p>
 
-                </div>
-
-
-                <div class="card">
-
-                    <h3>
-                        Appointments
-                    </h3>
-
-                    <p>
-                        Book, reschedule and cancel appointments.
-                    </p>
-
-                </div>
+                    </div>
 
 
-                <div class="card">
 
-                    <h3>
-                        Payments
-                    </h3>
+                    <div class="form-group">
 
-                    <p>
-                        Make online payments using Razorpay.
-                    </p>
+                        <label for="profileName">
+                            Full Name
+                        </label>
 
-                </div>
+                        <input
+                            type="text"
+                            id="profileName"
+                            required>
+
+                    </div>
 
 
-                <div class="card">
 
-                    <h3>
-                        Reviews
-                    </h3>
+                    <div class="form-group">
 
-                    <p>
-                        Give feedback and view staff responses.
-                    </p>
+                        <label for="profileEmail">
+                            Email Address
+                        </label>
 
-                </div>
+                        <input
+                            type="email"
+                            id="profileEmail"
+                            readonly>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="profilePhone">
+                            Phone Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="profilePhone">
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        Save Changes
+
+                    </button>
+
+
+                </form>
+
 
             </div>
 
+
         </section>
 
-    </div>
 
 
-    <!-- ===================================================== -->
-    <!-- SERVICES -->
-    <!-- ===================================================== -->
+        <!-- =================================================
+             BOOKING PAGE
+        ================================================== -->
 
-    <div
-        id="services"
-        class="page">
+        <section id="booking"
+            class="page">
 
-        <section>
 
-            <div class="section-title">
+            <div class="page-header">
 
-                <h2>
-                    Salon Services
-                </h2>
+                <span class="section-label">
+                    RESERVATION
+                </span>
+
+                <h1>
+                    Book Your Appointment
+                </h1>
 
                 <p>
-                    Available services and pricing
+                    Select your preferred service, professional,
+                    date and time.
                 </p>
 
             </div>
 
-            <div
-                id="servicesContainer"
-                class="grid">
 
-            </div>
+
+            <form id="bookingForm"
+                class="booking-form"
+                onsubmit="bookAppointment(event); return false;">
+
+
+                <!-- CUSTOMER DETAILS -->
+
+                <div class="form-section-card">
+
+
+                    <div class="form-section-header">
+
+                        <span class="step-number">
+                            01
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Your Details
+                            </h2>
+
+                            <p>
+                                Tell us who the appointment is for.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="customerName">
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customerName"
+                                placeholder="Enter your name"
+                                required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="customerEmail">
+                                Email Address
+                            </label>
+
+                            <input
+                                type="email"
+                                id="customerEmail"
+                                placeholder="you@example.com"
+                                required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="customerPhone">
+                                Phone Number
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customerPhone"
+                                placeholder="Enter phone number"
+                                required>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- SERVICE DETAILS -->
+
+                <div class="form-section-card">
+
+
+                    <div class="form-section-header">
+
+                        <span class="step-number">
+                            02
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Choose Your Service
+                            </h2>
+
+                            <p>
+                                Select the service you want.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="serviceSelect">
+                                Service
+                            </label>
+
+                            <select
+                                id="serviceSelect"
+                                required>
+
+                                <option value="">
+                                    Select a service
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="staffSelect">
+                                Professional
+                            </label>
+
+                            <select
+                                id="staffSelect"
+                                required>
+
+                                <option value="">
+                                    Select professional
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- DATE & TIME -->
+
+                <div class="form-section-card">
+
+
+                    <div class="form-section-header">
+
+                        <span class="step-number">
+                            03
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Date & Time
+                            </h2>
+
+                            <p>
+                                Choose when you would like to visit.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label for="appointmentDate">
+                                Appointment Date
+                            </label>
+
+                            <input
+                                type="date"
+                                id="appointmentDate"
+                                required>
+
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <label for="startTime">
+                                Start Time
+                            </label>
+
+                            <input
+                                type="time"
+                                id="startTime"
+                                required>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- NOTES -->
+
+                <div class="form-section-card">
+
+
+                    <div class="form-section-header">
+
+                        <span class="step-number">
+                            04
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                Additional Notes
+                            </h2>
+
+                            <p>
+                                Anything we should know before your visit?
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="appointmentNotes">
+                            Notes
+                        </label>
+
+                        <textarea
+                            id="appointmentNotes"
+                            rows="5"
+                            placeholder="Optional notes..."></textarea>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="booking-submit">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-large">
+
+                        Confirm Appointment
+
+                    </button>
+
+                </div>
+
+
+            </form>
+
 
         </section>
 
-    </div>
 
 
-    <!-- ===================================================== -->
-    <!-- STAFF -->
-    <!-- ===================================================== -->
+        <!-- =================================================
+             APPOINTMENTS PAGE
+        ================================================== -->
 
-    <div
-        id="staff"
-        class="page">
+        <section id="appointments"
+            class="page">
 
-        <section>
 
-            <div class="section-title">
+            <div class="page-header">
 
-                <h2>
-                    Our Staff
-                </h2>
+                <span class="section-label">
+                    MY BOOKINGS
+                </span>
 
-                <p>
-                    Meet our professional staff
-                </p>
-
-            </div>
-
-            <div
-                id="staffContainer"
-                class="grid">
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- REGISTER -->
-    <!-- ===================================================== -->
-
-    <div
-        id="register"
-        class="page">
-
-        <section>
-
-            <div class="form-container">
-
-                <h2>
-                    Create Account
-                </h2>
-
-                <div
-                    id="registerMessage"
-                    class="message">
-                </div>
-
-                <div class="form-group">
-
-                    <label>
-                        Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="registerName"
-                        placeholder="Enter your name">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="registerEmail"
-                        placeholder="Enter email">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Phone
-                    </label>
-
-                    <input
-                        type="text"
-                        id="registerPhone"
-                        placeholder="Enter phone">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="registerPassword"
-                        placeholder="Enter password">
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    onclick="registerUser()">
-
-                    Register
-
-                </button>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- LOGIN -->
-    <!-- ===================================================== -->
-
-    <div
-        id="login"
-        class="page">
-
-        <section>
-
-            <div class="form-container">
-
-                <h2>
-                    Login
-                </h2>
-
-                <div
-                    id="loginMessage"
-                    class="message">
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="loginEmail"
-                        placeholder="Enter email">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Password
-                    </label>
-
-                    <input
-                        type="password"
-                        id="loginPassword"
-                        placeholder="Enter password">
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    onclick="loginUser()">
-
-                    Login
-
-                </button>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- PROFILE -->
-    <!-- ===================================================== -->
-
-    <div
-        id="profile"
-        class="page">
-
-        <section>
-
-            <div class="form-container">
-
-                <h2>
-                    My Profile
-                </h2>
-
-                <div
-                    id="profileMessage"
-                    class="message">
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="profileName">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="profileEmail"
-                        readonly>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Phone
-                    </label>
-
-                    <input
-                        type="text"
-                        id="profilePhone">
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    onclick="updateProfile()">
-
-                    Update Profile
-
-                </button>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- BOOK APPOINTMENT -->
-    <!-- ===================================================== -->
-
-    <div
-        id="book"
-        class="page">
-
-        <section>
-
-            <div class="form-container">
-
-                <h2>
-                    Book Appointment
-                </h2>
-
-                <div
-                    id="bookingMessage"
-                    class="message">
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Customer Name
-                    </label>
-
-                    <input
-                        type="text"
-                        id="customerName"
-                        placeholder="Customer name">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Customer Email
-                    </label>
-
-                    <input
-                        type="email"
-                        id="customerEmail"
-                        placeholder="Customer email">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Customer Phone
-                    </label>
-
-                    <input
-                        type="text"
-                        id="customerPhone"
-                        placeholder="Phone">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Service
-                    </label>
-
-                    <select id="serviceSelect">
-
-                        <option value="">
-                            Select Service
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Staff
-                    </label>
-
-                    <select id="staffSelect">
-
-                        <option value="">
-                            Select Staff
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Appointment Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="appointmentDate">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Start Time
-                    </label>
-
-                    <input
-                        type="time"
-                        id="startTime">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Notes
-                    </label>
-
-                    <textarea
-                        id="appointmentNotes"
-                        rows="4"
-                        placeholder="Optional notes"></textarea>
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    onclick="bookAppointment()">
-
-                    Book Appointment
-
-                </button>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- MY APPOINTMENTS -->
-    <!-- ===================================================== -->
-
-    <div
-        id="appointments"
-        class="page">
-
-        <section>
-
-            <div class="section-title">
-
-                <h2>
+                <h1>
                     My Appointments
-                </h2>
+                </h1>
 
                 <p>
-                    Manage your appointments
+                    View and manage your salon appointments.
                 </p>
 
             </div>
 
 
-            <div
-                id="appointmentsContainer"
-                class="grid">
+
+            <div id="appointmentsContainer"
+                class="appointments-list">
 
             </div>
 
+
         </section>
 
-    </div>
 
 
-    <!-- ===================================================== -->
-    <!-- RESCHEDULE -->
-    <!-- ===================================================== -->
+        <!-- =================================================
+             RESCHEDULE PAGE
+        ================================================== -->
 
-    <div
-        id="reschedule"
-        class="page">
+        <section id="reschedule"
+            class="page">
 
-        <section>
 
-            <div class="form-container">
+            <div class="page-header">
 
-                <h2>
+                <span class="section-label">
+                    UPDATE BOOKING
+                </span>
+
+                <h1>
                     Reschedule Appointment
-                </h2>
+                </h1>
+
+                <p>
+                    Choose a new date and start time.
+                </p>
+
+            </div>
+
+
+
+            <form id="rescheduleForm"
+                class="form-card centered-form"
+                onsubmit="rescheduleAppointment(event); return false;">
+
 
                 <input
                     type="hidden"
                     id="rescheduleAppointmentId">
 
 
+
+                <div class="form-title">
+
+                    <h2>
+                        Select New Schedule
+                    </h2>
+
+                </div>
+
+
+
                 <div class="form-group">
 
-                    <label>
+                    <label for="rescheduleDate">
                         New Date
                     </label>
 
                     <input
                         type="date"
-                        id="rescheduleDate">
+                        id="rescheduleDate"
+                        required>
 
                 </div>
 
 
+
                 <div class="form-group">
 
-                    <label>
+                    <label for="rescheduleTime">
                         New Start Time
                     </label>
 
                     <input
                         type="time"
-                        id="rescheduleTime">
+                        id="rescheduleTime"
+                        required>
 
                 </div>
 
 
-                <button
-                    class="btn"
-                    onclick="rescheduleAppointment()">
 
-                    Reschedule
+                <button
+                    type="submit"
+                    class="btn btn-primary btn-full">
+
+                    Update Appointment
 
                 </button>
 
 
-                <button
-                    class="btn btn-secondary"
-                    onclick="showPage('appointments')">
 
-                    Back
+                <button
+                    type="button"
+                    class="btn btn-secondary btn-full"
+                    onclick="showPage('appointments');">
+
+                    Back to Appointments
 
                 </button>
 
-            </div>
+
+            </form>
+
 
         </section>
 
-    </div>
 
 
-    <!-- ===================================================== -->
-    <!-- REVIEWS -->
-    <!-- ===================================================== -->
+        <!-- =================================================
+             REVIEWS PAGE
+        ================================================== -->
 
-    <div
-        id="reviews"
-        class="page">
+        <section id="reviews"
+            class="page">
 
-        <section>
 
-            <div class="section-title">
+            <div class="page-header">
 
-                <h2>
-                    My Reviews
-                </h2>
+                <span class="section-label">
+                    YOUR EXPERIENCE
+                </span>
+
+                <h1>
+                    Reviews & Feedback
+                </h1>
 
                 <p>
-                    Submit feedback for completed appointments
+                    Share your experience with our team.
                 </p>
 
             </div>
 
 
-            <div class="form-container">
 
-                <div
-                    id="reviewMessage"
-                    class="message">
+            <div class="review-layout">
+
+
+                <!-- REVIEW FORM -->
+
+                <form id="reviewForm"
+                    class="form-card"
+                    onsubmit="submitReview(event); return false;">
+
+
+                    <div class="form-title">
+
+                        <h2>
+                            Leave a Review
+                        </h2>
+
+                        <p>
+                            Your feedback helps us improve.
+                        </p>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="reviewAppointmentId">
+                            Appointment ID
+                        </label>
+
+                        <input
+                            type="number"
+                            id="reviewAppointmentId"
+                            placeholder="Enter appointment ID"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="reviewStaffId">
+                            Staff ID
+                        </label>
+
+                        <input
+                            type="number"
+                            id="reviewStaffId"
+                            placeholder="Enter staff ID"
+                            required>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="reviewRating">
+                            Rating
+                        </label>
+
+                        <select
+                            id="reviewRating"
+                            required>
+
+                            <option value="">
+                                Select rating
+                            </option>
+
+                            <option value="5">
+                                ★★★★★ — Excellent
+                            </option>
+
+                            <option value="4">
+                                ★★★★☆ — Very Good
+                            </option>
+
+                            <option value="3">
+                                ★★★☆☆ — Good
+                            </option>
+
+                            <option value="2">
+                                ★★☆☆☆ — Average
+                            </option>
+
+                            <option value="1">
+                                ★☆☆☆☆ — Poor
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="form-group">
+
+                        <label for="reviewComment">
+                            Comment
+                        </label>
+
+                        <textarea
+                            id="reviewComment"
+                            rows="5"
+                            placeholder="Tell us about your experience..."
+                            required></textarea>
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary btn-full">
+
+                        Submit Review
+
+                    </button>
+
+
+                </form>
+
+
+
+                <!-- MY REVIEWS -->
+
+                <div class="reviews-panel">
+
+
+                    <div class="panel-heading">
+
+                        <span class="section-label">
+                            YOUR FEEDBACK
+                        </span>
+
+                        <h2>
+                            My Reviews
+                        </h2>
+
+                    </div>
+
+
+
+                    <div id="myReviewsContainer"
+                        class="reviews-list">
+
+                    </div>
+
+
                 </div>
 
-
-                <div class="form-group">
-
-                    <label>
-                        Appointment ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="reviewAppointmentId"
-                        placeholder="Example: 3">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Staff ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="reviewStaffId"
-                        placeholder="Example: 2">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Rating
-                    </label>
-
-                    <select id="reviewRating">
-
-                        <option value="5">
-                            5 - Excellent
-                        </option>
-
-                        <option value="4">
-                            4 - Very Good
-                        </option>
-
-                        <option value="3">
-                            3 - Good
-                        </option>
-
-                        <option value="2">
-                            2 - Average
-                        </option>
-
-                        <option value="1">
-                            1 - Poor
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>
-                        Comment
-                    </label>
-
-                    <textarea
-                        id="reviewComment"
-                        rows="5"
-                        placeholder="Write your feedback"></textarea>
-
-                </div>
-
-
-                <button
-                    class="btn"
-                    onclick="submitReview()">
-
-                    Submit Review
-
-                </button>
 
             </div>
 
-
-            <br>
-
-
-            <div
-                id="myReviewsContainer"
-                class="grid">
-
-            </div>
 
         </section>
 
-    </div>
 
 
-    <!-- ===================================================== -->
-    <!-- ADMIN DASHBOARD -->
-    <!-- ===================================================== -->
+        <!-- =================================================
+             ADMIN DASHBOARD
+        ================================================== -->
 
-    <div
-        id="admin"
-        class="page">
-
-        <section>
-
-            <div class="section-title">
-
-                <h2>
-                    Admin Dashboard
-                </h2>
-
-                <p>
-                    Manage salon system
-                </p>
-
-            </div>
+        <section id="admin"
+            class="page">
 
 
-            <!-- STATS -->
+            <div class="admin-header">
 
-            <div
-                class="stats-grid"
-                id="adminStats">
 
-                <div class="stat-card">
+                <div>
+
+                    <span class="section-label">
+                        ADMIN PANEL
+                    </span>
+
+                    <h1>
+                        Dashboard
+                    </h1>
 
                     <p>
-                        Users
+                        Manage salon operations from one place.
                     </p>
 
-                    <h2 id="totalUsers">
-                        0
-                    </h2>
-
                 </div>
 
 
-                <div class="stat-card">
-
-                    <p>
-                        Appointments
-                    </p>
-
-                    <h2 id="totalAppointments">
-                        0
-                    </h2>
-
+                <div class="admin-badge">
+                    ADMIN ACCESS
                 </div>
 
-
-                <div class="stat-card">
-
-                    <p>
-                        Staff
-                    </p>
-
-                    <h2 id="totalStaff">
-                        0
-                    </h2>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <p>
-                        Services
-                    </p>
-
-                    <h2 id="totalServices">
-                        0
-                    </h2>
-
-                </div>
 
             </div>
 
 
-            <br>
 
+            <!-- =================================================
+                 ADMIN STATS
+            ================================================== -->
 
-            <!-- USERS -->
-
-            <div class="admin-box">
-
-                <h2>
-                    User Management
-                </h2>
-
-                <div
-                    class="table-wrapper"
-                    id="adminUsersContainer">
-
-                </div>
+            <div id="adminStats"
+                class="stats-grid">
 
             </div>
 
 
-            <!-- APPOINTMENTS -->
 
-            <div class="admin-box">
+            <!-- =================================================
+                 USERS
+            ================================================== -->
 
-                <h2>
-                    Appointment Management
-                </h2>
+            <div class="admin-panel">
 
-                <div
-                    class="table-wrapper"
-                    id="adminAppointmentsContainer">
 
-                </div>
+                <div class="admin-panel-header">
 
-            </div>
+                    <div>
 
+                        <span class="section-label">
+                            USERS
+                        </span>
 
-            <!-- STAFF -->
-
-            <div class="admin-box">
-
-                <h2>
-                    Staff Management
-                </h2>
-
-                <div
-                    class="table-wrapper"
-                    id="adminStaffContainer">
-
-                </div>
-
-            </div>
-
-
-            <!-- SERVICES -->
-
-            <div class="admin-box">
-
-                <h2>
-                    Service Management
-                </h2>
-
-                <div
-                    class="table-wrapper"
-                    id="adminServicesContainer">
-
-                </div>
-
-            </div>
-
-
-            <!-- REVIEWS -->
-
-            <div class="admin-box">
-
-                <h2>
-                    Customer Reviews
-                </h2>
-
-                <div
-                    class="table-wrapper"
-                    id="adminReviewsContainer">
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </div>
-
-
-    <!-- ===================================================== -->
-    <!-- FOOTER -->
-    <!-- ===================================================== -->
-
-    <footer>
-
-        <p>
-            © 2026 Salon Appointment Booking System
-        </p>
-
-    </footer>
-
-
-    <!-- ===================================================== -->
-    <!-- JAVASCRIPT -->
-    <!-- ===================================================== -->
-
-    <script>
-
-        /* =====================================================
-           CONFIGURATION
-        ===================================================== */
-
-       const API_URL = "http://51.20.70.161:5000";
-
-        
-
-        const RAZORPAY_KEY_ID = "rzp_test_TdqP8FGS6OOGgV";
-
-
-        /* =====================================================
-           PENDING SERVICE
-        ===================================================== */
-
-        let pendingServiceId = null;
-
-
-        /* =====================================================
-           TOKEN
-        ===================================================== */
-
-        function getToken() {
-
-            return localStorage.getItem("token");
-
-        }
-
-
-        /* =====================================================
-           USER
-        ===================================================== */
-
-        function getUser() {
-
-            const user =
-                localStorage.getItem("user");
-
-            if (!user) {
-                return null;
-            }
-
-            try {
-
-                return JSON.parse(user);
-
-            } catch (error) {
-
-                return null;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           JWT PAYLOAD
-        ===================================================== */
-
-        function getTokenPayload() {
-
-            const token = getToken();
-
-            if (!token) {
-                return null;
-            }
-
-            try {
-
-                const payload =
-                    token.split(".")[1];
-
-                return JSON.parse(
-                    atob(
-                        payload
-                            .replace(/-/g, "+")
-                            .replace(/_/g, "/")
-                    )
-                );
-
-            } catch (error) {
-
-                return null;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           PAGE NAVIGATION
-        ===================================================== */
-
-        function showPage(pageId) {
-
-            const pages =
-                document.querySelectorAll(".page");
-
-            pages.forEach(page => {
-
-                page.classList.remove("active");
-
-            });
-
-
-            const page =
-                document.getElementById(pageId);
-
-            if (page) {
-
-                page.classList.add("active");
-
-            }
-
-
-            window.scrollTo({
-                top: 0,
-                behavior: "smooth"
-            });
-
-
-            if (pageId === "services") {
-
-                loadServices();
-
-            }
-
-
-            if (pageId === "staff") {
-
-                loadStaff();
-
-            }
-
-
-            if (pageId === "profile") {
-
-                loadProfile();
-
-            }
-
-
-            if (pageId === "book") {
-
-                loadBookingData();
-
-            }
-
-
-            if (pageId === "appointments") {
-
-                loadAppointments();
-
-            }
-
-
-            if (pageId === "reviews") {
-
-                loadMyReviews();
-
-            }
-
-
-            if (pageId === "admin") {
-
-                openAdminDashboard();
-
-            }
-
-        }
-
-
-        /* =====================================================
-           MESSAGE
-        ===================================================== */
-
-        function showMessage(
-            elementId,
-            message,
-            type = "success"
-        ) {
-
-            const element =
-                document.getElementById(elementId);
-
-            if (!element) {
-                return;
-            }
-
-            element.textContent = message;
-
-            element.className =
-                `message ${type}`;
-
-            element.style.display = "block";
-
-        }
-
-
-        /* =====================================================
-           SERVICES
-        ===================================================== */
-
-        async function loadServices() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/services`
-                    );
-
-                const result =
-                    await response.json();
-
-                const container =
-                    document.getElementById(
-                        "servicesContainer"
-                    );
-
-                container.innerHTML = "";
-
-
-                if (
-                    !response.ok ||
-                    !result.success ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No services available.</p>";
-
-                    return;
-
-                }
-
-
-                result.data.forEach(service => {
-
-                    const card =
-                        document.createElement("div");
-
-                    card.className = "card";
-
-
-                    card.innerHTML = `
-
-                        <h3>
-                            ${escapeHtml(service.name)}
-                        </h3>
-
-                        <p>
-                            ${escapeHtml(
-                                service.description || ""
-                            )}
-                        </p>
-
-                        <p>
-                            <strong>
-                                Duration:
-                            </strong>
-
-                            ${service.duration}
-                            minutes
-                        </p>
-
-                        <p>
-                            <strong>
-                                Price:
-                            </strong>
-
-                            ₹${service.price}
-                        </p>
-
-                        <button
-                            class="btn"
-                            onclick="selectService(${service.id})">
-
-                            Book This Service
-
-                        </button>
-
-                    `;
-
-
-                    container.appendChild(card);
-
-                });
-
-            } catch (error) {
-
-                console.error(
-                    "Load services error:",
-                    error
-                );
-
-                const container =
-                    document.getElementById(
-                        "servicesContainer"
-                    );
-
-                if (container) {
-
-                    container.innerHTML =
-                        "<p>Unable to load services.</p>";
-
-                }
-
-            }
-
-        }
-
-
-        /* =====================================================
-           SELECT SERVICE
-        ===================================================== */
-
-        function selectService(serviceId) {
-
-            pendingServiceId =
-                String(serviceId);
-
-            showPage("book");
-
-        }
-
-
-        /* =====================================================
-           STAFF
-        ===================================================== */
-
-        async function loadStaff() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/staff`
-                    );
-
-                const result =
-                    await response.json();
-
-                const container =
-                    document.getElementById(
-                        "staffContainer"
-                    );
-
-                container.innerHTML = "";
-
-
-                if (
-                    !response.ok ||
-                    !result.success ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No staff available.</p>";
-
-                    return;
-
-                }
-
-
-                result.data.forEach(staff => {
-
-                    const card =
-                        document.createElement("div");
-
-                    card.className = "card";
-
-
-                    card.innerHTML = `
-
-                        <h3>
-                            ${escapeHtml(staff.name)}
-                        </h3>
-
-                        <p>
-
-                            <strong>
-                                Specialization:
-                            </strong>
-
-                            ${escapeHtml(
-                                staff.specialization || "N/A"
-                            )}
-
-                        </p>
-
-                        <p>
-
-                            ${escapeHtml(
-                                staff.bio ||
-                                "Professional salon staff"
-                            )}
-
-                        </p>
-
-                    `;
-
-
-                    container.appendChild(card);
-
-                });
-
-            } catch (error) {
-
-                console.error(
-                    "Load staff error:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           LOAD BOOKING DATA
-        ===================================================== */
-
-        async function loadBookingData() {
-
-            const serviceSelect =
-                document.getElementById(
-                    "serviceSelect"
-                );
-
-            const staffSelect =
-                document.getElementById(
-                    "staffSelect"
-                );
-
-
-            try {
-
-                /* =========================
-                   LOAD SERVICES
-                ========================= */
-
-                serviceSelect.innerHTML = `
-
-                    <option value="">
-                        Select Service
-                    </option>
-
-                `;
-
-
-                const serviceResponse =
-                    await fetch(
-                        `${API_URL}/api/services`
-                    );
-
-
-                const serviceResult =
-                    await serviceResponse.json();
-
-
-                if (
-                    serviceResponse.ok &&
-                    serviceResult.success &&
-                    Array.isArray(serviceResult.data)
-                ) {
-
-                    serviceResult.data.forEach(service => {
-
-                        const option =
-                            document.createElement(
-                                "option"
-                            );
-
-                        option.value =
-                            String(service.id);
-
-                        option.textContent =
-                            `${service.name} - ₹${service.price}`;
-
-                        serviceSelect.appendChild(
-                            option
-                        );
-
-                    });
-
-                }
-
-
-                /* =========================
-                   LOAD STAFF
-                ========================= */
-
-                staffSelect.innerHTML = `
-
-                    <option value="">
-                        Select Staff
-                    </option>
-
-                `;
-
-
-                const staffResponse =
-                    await fetch(
-                        `${API_URL}/api/staff`
-                    );
-
-
-                const staffResult =
-                    await staffResponse.json();
-
-
-                if (
-                    staffResponse.ok &&
-                    staffResult.success &&
-                    Array.isArray(staffResult.data)
-                ) {
-
-                    staffResult.data.forEach(staff => {
-
-                        const option =
-                            document.createElement(
-                                "option"
-                            );
-
-                        option.value =
-                            String(staff.id);
-
-                        option.textContent =
-                            staff.name;
-
-                        staffSelect.appendChild(
-                            option
-                        );
-
-                    });
-
-                }
-
-
-                /* =========================
-                   SET SELECTED SERVICE
-                ========================= */
-
-                if (pendingServiceId) {
-
-                    serviceSelect.value =
-                        pendingServiceId;
-
-                    pendingServiceId = null;
-
-                }
-
-
-                /* =========================
-                   LOGIN CHECK
-                ========================= */
-
-                const token =
-                    getToken();
-
-
-                if (!token) {
-
-                    console.log(
-                        "No token found. User must login."
-                    );
-
-                    return;
-
-                }
-
-
-                /* =========================
-                   GET FRESH PROFILE
-                ========================= */
-
-                const profileResponse =
-                    await fetch(
-                        `${API_URL}/api/auth/profile`,
-                        {
-                            method: "GET",
-
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                const profileResult =
-                    await profileResponse.json();
-
-
-                if (!profileResponse.ok) {
-
-                    console.log(
-                        "Unable to load profile:",
-                        profileResult.message
-                    );
-
-                    return;
-
-                }
-
-
-                const user =
-                    profileResult.data ||
-                    profileResult.user;
-
-
-                if (!user) {
-
-                    return;
-
-                }
-
-
-                /* =========================
-                   SAVE USER
-                ========================= */
-
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(user)
-                );
-
-
-                /* =========================
-                   AUTO FILL
-                ========================= */
-
-                const customerName =
-                    document.getElementById(
-                        "customerName"
-                    );
-
-                const customerEmail =
-                    document.getElementById(
-                        "customerEmail"
-                    );
-
-                const customerPhone =
-                    document.getElementById(
-                        "customerPhone"
-                    );
-
-
-                if (customerName) {
-
-                    customerName.value =
-                        user.name || "";
-
-                }
-
-
-                if (customerEmail) {
-
-                    customerEmail.value =
-                        user.email || "";
-
-                }
-
-
-                if (customerPhone) {
-
-                    customerPhone.value =
-                        user.phone || "";
-
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "Load Booking Data Error:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           REGISTER
-        ===================================================== */
-
-        async function registerUser() {
-
-            const data = {
-
-                name:
-                    document.getElementById(
-                        "registerName"
-                    ).value.trim(),
-
-                email:
-                    document.getElementById(
-                        "registerEmail"
-                    ).value.trim(),
-
-                phone:
-                    document.getElementById(
-                        "registerPhone"
-                    ).value.trim(),
-
-                password:
-                    document.getElementById(
-                        "registerPassword"
-                    ).value
-
-            };
-
-
-            if (
-                !data.name ||
-                !data.email ||
-                !data.password
-            ) {
-
-                showMessage(
-                    "registerMessage",
-                    "Name, email and password are required.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/auth/register`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    showMessage(
-                        "registerMessage",
-                        result.message ||
-                        "Registration failed.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                showMessage(
-                    "registerMessage",
-                    "Registration successful. Please login.",
-                    "success"
-                );
-
-
-                document.getElementById(
-                    "registerName"
-                ).value = "";
-
-
-                document.getElementById(
-                    "registerEmail"
-                ).value = "";
-
-
-                document.getElementById(
-                    "registerPhone"
-                ).value = "";
-
-
-                document.getElementById(
-                    "registerPassword"
-                ).value = "";
-
-
-                setTimeout(() => {
-
-                    showPage("login");
-
-                }, 1000);
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                showMessage(
-                    "registerMessage",
-                    "Server error.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           LOGIN
-        ===================================================== */
-
-        async function loginUser() {
-
-            const data = {
-
-                email:
-                    document.getElementById(
-                        "loginEmail"
-                    ).value.trim(),
-
-                password:
-                    document.getElementById(
-                        "loginPassword"
-                    ).value
-
-            };
-
-
-            if (
-                !data.email ||
-                !data.password
-            ) {
-
-                showMessage(
-                    "loginMessage",
-                    "Email and password are required.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/auth/login`,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    showMessage(
-                        "loginMessage",
-                        result.message ||
-                        "Login failed.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                const token =
-                    result.token ||
-                    result.data?.token;
-
-
-                const user =
-                    result.user ||
-                    result.data?.user;
-
-
-                if (token) {
-
-                    localStorage.setItem(
-                        "token",
-                        token
-                    );
-
-                }
-
-
-                if (user) {
-
-                    localStorage.setItem(
-                        "user",
-                        JSON.stringify(user)
-                    );
-
-                }
-
-
-                /* =========================
-                   FRESH PROFILE
-                ========================= */
-
-                try {
-
-                    if (token) {
-
-                        const profileResponse =
-                            await fetch(
-                                `${API_URL}/api/auth/profile`,
-                                {
-                                    headers: {
-                                        "Authorization":
-                                            `Bearer ${token}`
-                                    }
-                                }
-                            );
-
-
-                        const profileResult =
-                            await profileResponse.json();
-
-
-                        if (profileResponse.ok) {
-
-                            const freshUser =
-                                profileResult.data ||
-                                profileResult.user;
-
-
-                            if (freshUser) {
-
-                                localStorage.setItem(
-                                    "user",
-                                    JSON.stringify(
-                                        freshUser
-                                    )
-                                );
-
-                            }
-
-                        }
-
-                    }
-
-                } catch (profileError) {
-
-                    console.error(
-                        "Profile fetch after login failed:",
-                        profileError
-                    );
-
-                }
-
-
-                showMessage(
-                    "loginMessage",
-                    "Login successful.",
-                    "success"
-                );
-
-
-                updateAdminButton();
-
-
-                setTimeout(() => {
-
-                    showPage("home");
-
-                }, 700);
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                showMessage(
-                    "loginMessage",
-                    "Server error.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           PROFILE
-        ===================================================== */
-
-        async function loadProfile() {
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                alert(
-                    "Please login first."
-                );
-
-                showPage("login");
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/auth/profile`,
-                        {
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "Unable to load profile."
-                    );
-
-                    return;
-
-                }
-
-
-                const user =
-                    result.data ||
-                    result.user;
-
-
-                if (!user) {
-
-                    return;
-
-                }
-
-
-                document.getElementById(
-                    "profileName"
-                ).value =
-                    user.name || "";
-
-
-                document.getElementById(
-                    "profileEmail"
-                ).value =
-                    user.email || "";
-
-
-                document.getElementById(
-                    "profilePhone"
-                ).value =
-                    user.phone || "";
-
-
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(user)
-                );
-
-
-            } catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
-
-
-        /* =====================================================
-           UPDATE PROFILE
-        ===================================================== */
-
-        async function updateProfile() {
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                alert(
-                    "Please login first."
-                );
-
-                return;
-
-            }
-
-
-            const data = {
-
-                name:
-                    document.getElementById(
-                        "profileName"
-                    ).value.trim(),
-
-                phone:
-                    document.getElementById(
-                        "profilePhone"
-                    ).value.trim()
-
-            };
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/auth/profile`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    showMessage(
-                        "profileMessage",
-                        result.message ||
-                        "Profile update failed.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                showMessage(
-                    "profileMessage",
-                    result.message ||
-                    "Profile updated successfully.",
-                    "success"
-                );
-
-
-                loadProfile();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                showMessage(
-                    "profileMessage",
-                    "Server error.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           BOOK APPOINTMENT
-        ===================================================== */
-
-        async function bookAppointment() {
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                alert(
-                    "Please login first."
-                );
-
-                showPage("login");
-
-                return;
-
-            }
-
-
-            const customerName =
-                document.getElementById(
-                    "customerName"
-                ).value.trim();
-
-
-            const customerEmail =
-                document.getElementById(
-                    "customerEmail"
-                ).value.trim();
-
-
-            const customerPhone =
-                document.getElementById(
-                    "customerPhone"
-                ).value.trim();
-
-
-            const serviceId =
-                document.getElementById(
-                    "serviceSelect"
-                ).value;
-
-
-            const staffId =
-                document.getElementById(
-                    "staffSelect"
-                ).value;
-
-
-            const appointmentDate =
-                document.getElementById(
-                    "appointmentDate"
-                ).value;
-
-
-            const startTime =
-                document.getElementById(
-                    "startTime"
-                ).value;
-
-
-            const notes =
-                document.getElementById(
-                    "appointmentNotes"
-                ).value.trim();
-
-
-            if (!customerName) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Customer name is required.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!customerEmail) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Customer email is required.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!serviceId) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Please select a service.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!staffId) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Please select a staff member.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!appointmentDate) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Please select appointment date.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (!startTime) {
-
-                showMessage(
-                    "bookingMessage",
-                    "Please select appointment start time.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const data = {
-
-                customerName:
-                    customerName,
-
-                customerEmail:
-                    customerEmail,
-
-                customerPhone:
-                    customerPhone,
-
-                serviceId:
-                    Number(serviceId),
-
-                staffId:
-                    Number(staffId),
-
-                appointmentDate:
-                    appointmentDate,
-
-                startTime:
-                    startTime,
-
-                notes:
-                    notes
-
-            };
-
-
-            console.log(
-                "FINAL APPOINTMENT DATA:",
-                data
-            );
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/appointments`,
-                        {
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-const result = await response.json();
-
-console.log("========== BOOKING DEBUG ==========");
-console.log("STATUS:", response.status);
-console.log("OK:", response.ok);
-console.log("FINAL APPOINTMENT DATA:", data);
-console.log("BOOKING API RESPONSE:", result);
-console.log("===================================");
-                    
-
-
-                if (!response.ok) {
-
-                    showMessage(
-                        "bookingMessage",
-                        result.message ||
-                        "Appointment booking failed.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                showMessage(
-                    "bookingMessage",
-                    result.message ||
-                    "Appointment booked successfully.",
-                    "success"
-                );
-
-
-                document.getElementById(
-                    "appointmentDate"
-                ).value = "";
-
-
-                document.getElementById(
-                    "startTime"
-                ).value = "";
-
-
-                document.getElementById(
-                    "appointmentNotes"
-                ).value = "";
-
-
-                setTimeout(() => {
-
-                    showPage(
-                        "appointments"
-                    );
-
-                }, 800);
-
-
-            } catch (error) {
-
-                console.error(
-                    "Booking Error:",
-                    error
-                );
-
-
-                showMessage(
-                    "bookingMessage",
-                    "Server error. Please check whether backend is running.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           LOAD APPOINTMENTS
-        ===================================================== */
-
-        async function loadAppointments() {
-
-            const container =
-                document.getElementById(
-                    "appointmentsContainer"
-                );
-
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                container.innerHTML = `
-
-                    <div class="card">
-
-                        <p>
-                            Please login first.
-                        </p>
+                        <h2>
+                            User Management
+                        </h2>
 
                     </div>
 
-                `;
-
-                return;
-
-            }
-
-
-            container.innerHTML = `
-
-                <div class="card">
-
-                    <p>
-                        Loading appointments...
-                    </p>
-
                 </div>
 
-            `;
 
 
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/appointments`,
-                        {
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    container.innerHTML = `
-
-                        <div class="card">
-
-                            <p>
-                                ${escapeHtml(
-                                    result.message ||
-                                    "Unable to load appointments."
-                                )}
-                            </p>
-
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                const appointments =
-                    result.data ||
-                    result.appointments ||
-                    [];
-
-
-                if (
-                    !Array.isArray(appointments) ||
-                    appointments.length === 0
-                ) {
-
-                    container.innerHTML = `
-
-                        <div class="card">
-
-                            <p>
-                                No appointments found.
-                            </p>
-
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                /* =========================
-                   PAYMENT STATUS
-                ========================= */
-
-                const enriched =
-                    await Promise.all(
-
-                        appointments.map(
-                            async appointment => {
-
-                                try {
-
-                                    const paymentResponse =
-                                        await fetch(
-                                            `${API_URL}/api/payments/appointment/${appointment.id}`,
-                                            {
-                                                headers: {
-                                                    "Authorization":
-                                                        `Bearer ${token}`
-                                                }
-                                            }
-                                        );
-
-
-                                    const paymentResult =
-                                        await paymentResponse.json();
-
-
-                                    const payments =
-                                        paymentResult.data ||
-                                        paymentResult.payments ||
-                                        [];
-
-
-                                    const isPaid =
-                                        Array.isArray(
-                                            payments
-                                        ) &&
-                                        payments.some(
-                                            payment =>
-                                                payment.status ===
-                                                "PAID"
-                                        );
-
-
-                                    return {
-
-                                        ...appointment,
-
-                                        isPaid
-
-                                    };
-
-
-                                } catch (error) {
-
-                                    return {
-
-                                        ...appointment,
-
-                                        isPaid: false
-
-                                    };
-
-                                }
-
-                            }
-                        )
-
-                    );
-
-
-                container.innerHTML = "";
-
-
-                enriched.forEach(
-                    appointment => {
-
-                        const card =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        card.className =
-                            "card";
-
-
-                        const serviceName =
-                            appointment.serviceName ||
-                            appointment.service?.name ||
-                            `Service #${appointment.serviceId}`;
-
-
-                        const staffName =
-                            appointment.staffName ||
-                            appointment.staff?.name ||
-                            `Staff #${appointment.staffId}`;
-
-
-                        let actions = "";
-
-
-                        if (
-                            appointment.status !==
-                            "CANCELLED" &&
-                            appointment.status !==
-                            "COMPLETED"
-                        ) {
-
-                            if (
-                                appointment.isPaid
-                            ) {
-
-                                actions += `
-
-                                    <span
-                                        style="
-                                            font-weight:bold;
-                                            color:#166534;
-                                        ">
-
-                                        Payment Completed
-
-                                    </span>
-
-                                `;
-
-                            } else {
-
-                                actions += `
-
-                                    <button
-                                        class="btn btn-success"
-                                        onclick="
-                                            startPayment(
-                                                ${appointment.id},
-                                                ${appointment.serviceId}
-                                            )
-                                        ">
-
-                                        Pay Now
-
-                                    </button>
-
-                                `;
-
-                            }
-
-
-                            actions += `
-
-                                <button
-                                    class="btn"
-                                    onclick="
-                                        openReschedule(
-                                            ${appointment.id}
-                                        )
-                                    ">
-
-                                    Reschedule
-
-                                </button>
-
-                            `;
-
-
-                            actions += `
-
-                                <button
-                                    class="btn btn-danger"
-                                    onclick="
-                                        cancelAppointment(
-                                            ${appointment.id}
-                                        )
-                                    ">
-
-                                    Cancel
-
-                                </button>
-
-                            `;
-
-                        }
-
-
-                        if (
-                            appointment.status ===
-                            "COMPLETED"
-                        ) {
-
-                            actions += `
-
-                                <button
-                                    class="btn"
-                                    onclick="
-                                        openReviewForAppointment(
-                                            ${appointment.id},
-                                            ${appointment.staffId}
-                                        )
-                                    ">
-
-                                    Review
-
-                                </button>
-
-                            `;
-
-                        }
-
-
-                        card.innerHTML = `
-
-                            <h3>
-                                Appointment #${appointment.id}
-                            </h3>
-
-                            <p>
-
-                                <strong>
-                                    Service:
-                                </strong>
-
-                                ${escapeHtml(
-                                    serviceName
-                                )}
-
-                            </p>
-
-                            <p>
-
-                                <strong>
-                                    Staff:
-                                </strong>
-
-                                ${escapeHtml(
-                                    staffName
-                                )}
-
-                            </p>
-
-                            <p>
-
-                                <strong>
-                                    Date:
-                                </strong>
-
-                                ${formatDate(
-                                    appointment.appointmentDate
-                                )}
-
-                            </p>
-
-                            <p>
-
-                                <strong>
-                                    Time:
-                                </strong>
-
-                                ${escapeHtml(
-                                    appointment.startTime ||
-                                    ""
-                                )}
-
-                                -
-
-                                ${escapeHtml(
-                                    appointment.endTime ||
-                                    ""
-                                )}
-
-                            </p>
-
-                            <p>
-
-                                <strong>
-                                    Status:
-                                </strong>
-
-                                ${escapeHtml(
-                                    appointment.status ||
-                                    ""
-                                )}
-
-                            </p>
-
-                            ${
-                                appointment.notes
-                                    ? `
-                                        <p>
-
-                                            <strong>
-                                                Notes:
-                                            </strong>
-
-                                            ${escapeHtml(
-                                                appointment.notes
-                                            )}
-
-                                        </p>
-                                    `
-                                    : ""
-                            }
-
-                            <div>
-
-                                ${actions}
-
-                            </div>
-
-                        `;
-
-
-                        container.appendChild(
-                            card
-                        );
-
-                    }
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Load appointments error:",
-                    error
-                );
-
-
-                container.innerHTML = `
-
-                    <div class="card">
-
-                        <p>
-                            Server error.
-                            Please check backend.
-                        </p>
-
-                    </div>
-
-                `;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           RESCHEDULE OPEN
-        ===================================================== */
-
-        function openReschedule(
-            appointmentId
-        ) {
-
-            document.getElementById(
-                "rescheduleAppointmentId"
-            ).value =
-                appointmentId;
-
-
-            showPage(
-                "reschedule"
-            );
-
-        }
-
-
-        /* =====================================================
-           RESCHEDULE APPOINTMENT
-        ===================================================== */
-
-        async function rescheduleAppointment() {
-
-            const token =
-                getToken();
-
-
-            const appointmentId =
-                document.getElementById(
-                    "rescheduleAppointmentId"
-                ).value;
-
-
-            const appointmentDate =
-                document.getElementById(
-                    "rescheduleDate"
-                ).value;
-
-
-            const startTime =
-                document.getElementById(
-                    "rescheduleTime"
-                ).value;
-
-
-            if (
-                !appointmentDate ||
-                !startTime
-            ) {
-
-                alert(
-                    "Please select date and time."
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/appointments/${appointmentId}/reschedule`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    appointmentDate,
-                                    startTime
-                                })
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "Reschedule failed."
-                    );
-
-                    return;
-
-                }
-
-
-                alert(
-                    result.message ||
-                    "Appointment rescheduled successfully."
-                );
-
-
-                document.getElementById(
-                    "rescheduleDate"
-                ).value = "";
-
-
-                document.getElementById(
-                    "rescheduleTime"
-                ).value = "";
-
-
-                showPage(
-                    "appointments"
-                );
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Server error."
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           CANCEL APPOINTMENT
-        ===================================================== */
-
-        async function cancelAppointment(
-            appointmentId
-        ) {
-
-            const token =
-                getToken();
-
-
-            const confirmCancel =
-                confirm(
-                    "Are you sure you want to cancel this appointment?"
-                );
-
-
-            if (!confirmCancel) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/appointments/${appointmentId}/cancel`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            }
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "Cancellation failed."
-                    );
-
-                    return;
-
-                }
-
-
-                alert(
-                    result.message ||
-                    "Appointment cancelled."
-                );
-
-
-                loadAppointments();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Server error."
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           RAZORPAY PAYMENT
-        ===================================================== */
-async function startPayment(
-    appointmentId,
-    serviceId
-) {
-    const token = getToken();
-
-    if (!token) {
-        alert("Please login first.");
-        return;
-    }
-
-    if (
-        !RAZORPAY_KEY_ID ||
-        RAZORPAY_KEY_ID === "rzp_test_xxxxxxxxxx"
-    ) {
-        alert(
-            "Please add your Razorpay TEST Key ID in index.html."
-        );
-        return;
-    }
-
-    try {
-        // STEP 1: Create Razorpay order
-        const orderResponse = await fetch(
-            `${API_URL}/api/payments/create-order`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-
-                body: JSON.stringify({
-                    appointmentId: appointmentId
-                })
-            }
-        );
-
-        const orderResult =
-            await orderResponse.json();
-
-        console.log(
-            "PAYMENT ORDER RESPONSE:",
-            orderResult
-        );
-
-        if (!orderResponse.ok) {
-            alert(
-                orderResult.message ||
-                "Unable to create payment order."
-            );
-            return;
-        }
-
-        const order =
-            orderResult.data ||
-            orderResult.order;
-
-        if (!order) {
-            alert(
-                "Payment order not received."
-            );
-            return;
-        }
-
-        // IMPORTANT:
-        // Backend returns razorpayOrderId
-        const razorpayOrderId =
-            order.razorpayOrderId;
-
-        console.log(
-            "RAZORPAY ORDER DATA:",
-            order
-        );
-
-        console.log(
-            "RAZORPAY ORDER ID:",
-            razorpayOrderId
-        );
-
-        if (!razorpayOrderId) {
-            alert(
-                "Razorpay Order ID not received from server."
-            );
-            return;
-        }
-
-        // STEP 2: Razorpay Checkout options
-        const options = {
-            key: RAZORPAY_KEY_ID,
-
-            // Razorpay expects amount in paise
-            amount: Math.round(
-                Number(order.amount) * 100
-            ),
-
-            currency:
-                order.currency || "INR",
-
-            name:
-                "Salon Appointment Booking",
-
-            description:
-                `Appointment #${appointmentId}`,
-
-            order_id:
-                razorpayOrderId,
-
-            handler:
-                async function(response) {
-
-                    console.log(
-                        "RAZORPAY SUCCESS RESPONSE:",
-                        response
-                    );
-
-                    console.log(
-                        "Payment ID:",
-                        response?.razorpay_payment_id
-                    );
-
-                    console.log(
-                        "Order ID:",
-                        response?.razorpay_order_id
-                    );
-
-                    console.log(
-                        "Signature:",
-                        response?.razorpay_signature
-                    );
-
-                    await verifyPayment(
-                        appointmentId,
-                        response
-                    );
-                },
-
-            modal: {
-                ondismiss: function() {
-                    console.log(
-                        "Razorpay checkout closed."
-                    );
-                }
-            },
-
-            theme: {
-                color: "#111827"
-            }
-        };
-
-        // STEP 3: Open Razorpay
-        const razorpay =
-            new Razorpay(options);
-
-        razorpay.open();
-
-    } catch (error) {
-
-        console.error(
-            "Payment initialization error:",
-            error
-        );
-
-        alert(
-            "Payment initialization failed."
-        );
-    }
-}
-
-
-        /* =====================================================
-           VERIFY PAYMENT
-        ===================================================== */
-
-async function verifyPayment(
-    appointmentId,
-    paymentResponse
-) {
-    const token = getToken();
-
-    console.log("========== PAYMENT VERIFY ==========");
-    console.log("APPOINTMENT ID:", appointmentId);
-    console.log("RAZORPAY RESPONSE:", paymentResponse);
-    console.log(
-        "ORDER ID:",
-        paymentResponse?.razorpay_order_id
-    );
-    console.log(
-        "PAYMENT ID:",
-        paymentResponse?.razorpay_payment_id
-    );
-    console.log(
-        "SIGNATURE:",
-        paymentResponse?.razorpay_signature
-    );
-
-    try {
-        const response = await fetch(
-            `${API_URL}/api/payments/verify`,
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-
-                body: JSON.stringify({
-                    appointmentId: appointmentId,
-
-                    razorpayOrderId:
-                        paymentResponse?.razorpay_order_id,
-
-                    razorpayPaymentId:
-                        paymentResponse?.razorpay_payment_id,
-
-                    razorpaySignature:
-                        paymentResponse?.razorpay_signature
-                })
-            }
-        );
-
-        const result = await response.json();
-
-        console.log(
-            "PAYMENT VERIFY RESPONSE:",
-            result
-        );
-
-        if (!response.ok) {
-            alert(
-                result.message ||
-                "Payment verification failed."
-            );
-            return;
-        }
-
-        alert(
-            "Payment completed successfully!"
-        );
-
-        loadAppointments();
-
-    } catch (error) {
-
-        console.error(
-            "Payment verification error:",
-            error
-        );
-
-        alert(
-            "Payment verification error."
-        );
-    }
-}
-        /* =====================================================
-           REVIEW OPEN
-        ===================================================== */
-
-        function openReviewForAppointment(
-            appointmentId,
-            staffId
-        ) {
-
-            showPage(
-                "reviews"
-            );
-
-
-            setTimeout(() => {
-
-                document.getElementById(
-                    "reviewAppointmentId"
-                ).value =
-                    appointmentId;
-
-
-                document.getElementById(
-                    "reviewStaffId"
-                ).value =
-                    staffId;
-
-            }, 100);
-
-        }
-
-
-        /* =====================================================
-           SUBMIT REVIEW
-        ===================================================== */
-
-        async function submitReview() {
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                alert(
-                    "Please login first."
-                );
-
-                return;
-
-            }
-
-
-            const data = {
-
-                appointmentId:
-                    Number(
-                        document.getElementById(
-                            "reviewAppointmentId"
-                        ).value
-                    ),
-
-                staffId:
-                    Number(
-                        document.getElementById(
-                            "reviewStaffId"
-                        ).value
-                    ),
-
-                rating:
-                    Number(
-                        document.getElementById(
-                            "reviewRating"
-                        ).value
-                    ),
-
-                comment:
-                    document.getElementById(
-                        "reviewComment"
-                    ).value.trim()
-
-            };
-
-
-            if (
-                !data.appointmentId ||
-                !data.staffId ||
-                !data.rating
-            ) {
-
-                showMessage(
-                    "reviewMessage",
-                    "Appointment ID, Staff ID and rating are required.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/reviews`,
-                        {
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    showMessage(
-                        "reviewMessage",
-                        result.message ||
-                        "Review submission failed.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                showMessage(
-                    "reviewMessage",
-                    result.message ||
-                    "Review submitted successfully.",
-                    "success"
-                );
-
-
-                document.getElementById(
-                    "reviewComment"
-                ).value = "";
-
-
-                loadMyReviews();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                showMessage(
-                    "reviewMessage",
-                    "Server error.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           MY REVIEWS
-        ===================================================== */
-
-        async function loadMyReviews() {
-
-            const container =
-                document.getElementById(
-                    "myReviewsContainer"
-                );
-
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                container.innerHTML = `
-
-                    <div class="card">
-
-                        <p>
-                            Please login first.
-                        </p>
-
-                    </div>
-
-                `;
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/reviews`
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                container.innerHTML = "";
-
-
-                if (
-                    !response.ok ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML = `
-
-                        <div class="card">
-
-                            <p>
-                                No reviews available.
-                            </p>
-
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                const user =
-                    getUser();
-
-
-                const userName =
-                    user?.name;
-
-
-                const myReviews =
-                    result.data.filter(
-                        review => {
-
-                            return (
-                                !userName ||
-                                review.customerName ===
-                                userName
-                            );
-
-                        }
-                    );
-
-
-                if (
-                    myReviews.length === 0
-                ) {
-
-                    container.innerHTML = `
-
-                        <div class="card">
-
-                            <p>
-                                You have not submitted any reviews.
-                            </p>
-
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                myReviews.forEach(
-                    review => {
-
-                        const card =
-                            document.createElement(
-                                "div"
-                            );
-
-
-                        card.className =
-                            "card";
-
-
-                        card.innerHTML = `
-
-                            <h3>
-                                ⭐ ${review.rating}/5
-                            </h3>
-
-                            <p>
-
-                                <strong>
-                                    Appointment:
-                                </strong>
-
-                                ${review.appointmentId}
-
-                            </p>
-
-                            <p>
-                                ${escapeHtml(
-                                    review.comment || ""
-                                )}
-                            </p>
-
-                            <p>
-
-                                <strong>
-                                    Staff Response:
-                                </strong>
-
-                                ${escapeHtml(
-                                    review.staffResponse ||
-                                    "No response yet."
-                                )}
-
-                            </p>
-
-                        `;
-
-
-                        container.appendChild(
-                            card
-                        );
-
-                    }
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Load reviews error:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           ADMIN BUTTON
-        ===================================================== */
-    function updateAdminButton() {
-    const button =
-        document.getElementById("adminNav");
-
-    if (!button) {
-        return;
-    }
-
-    const payload =
-        getTokenPayload();
-
-    console.log(
-        "ADMIN TOKEN PAYLOAD:",
-        payload
-    );
-
-    if (
-        payload &&
-        payload.role === "ADMIN"
-    ) {
-        button.style.display =
-            "inline-block";
-    } else {
-        button.style.display =
-            "none";
-    }
-}
-        /* =====================================================
-           ADMIN DASHBOARD
-        ===================================================== */
-
-        async function openAdminDashboard() {
-
-            const payload =
-                getTokenPayload();
-
-
-            if (
-                !payload ||
-                payload.role !== "ADMIN"
-            ) {
-
-                alert(
-                    "Admin access required."
-                );
-
-
-                showPage(
-                    "home"
-                );
-
-
-                return;
-
-            }
-
-
-            loadAdminDashboard();
-
-        }
-
-
-        /* =====================================================
-           ADMIN HEADERS
-        ===================================================== */
-
-        function getAdminHeaders() {
-
-            return {
-
-                "Content-Type":
-                    "application/json",
-
-                "Authorization":
-                    `Bearer ${getToken()}`
-
-            };
-
-        }
-
-
-        /* =====================================================
-           ADMIN DASHBOARD STATS
-        ===================================================== */
-
-        async function loadAdminDashboard() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/dashboard`,
-                        {
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "Unable to load dashboard."
-                    );
-
-                    return;
-
-                }
-
-
-                const data =
-                    result.data || {};
-
-
-                document.getElementById(
-                    "totalUsers"
-                ).textContent =
-                    data.totalUsers ??
-                    data.users ??
-                    0;
-
-
-                document.getElementById(
-                    "totalAppointments"
-                ).textContent =
-                    data.totalAppointments ??
-                    data.appointments ??
-                    0;
-
-
-                document.getElementById(
-                    "totalStaff"
-                ).textContent =
-                    data.totalStaff ??
-                    data.staff ??
-                    0;
-
-
-                document.getElementById(
-                    "totalServices"
-                ).textContent =
-                    data.totalServices ??
-                    data.services ??
-                    0;
-
-
-                loadAdminUsers();
-
-                loadAdminAppointments();
-
-                loadAdminStaff();
-
-                loadAdminServices();
-
-                loadAdminReviews();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Unable to load admin dashboard."
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           ADMIN USERS
-        ===================================================== */
-        /* =====================================================
-           LOAD ADMIN USERS
-        ===================================================== */
-
-        async function loadAdminUsers() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/users`,
-                        {
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                const container =
-                    document.getElementById(
-                        "adminUsersContainer"
-                    );
-
-
-                if (
-                    !response.ok ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No users found.</p>";
-
-                    return;
-
-                }
-
-
-                let html = `
+                <div class="table-wrapper">
 
                     <table>
 
@@ -4496,414 +1662,54 @@ async function verifyPayment(
 
                                 <th>Email</th>
 
-                                <th>Phone</th>
-
                                 <th>Role</th>
 
-                                <th>Action</th>
+                                <th>Actions</th>
 
                             </tr>
 
                         </thead>
 
-                        <tbody>
 
-                `;
-
-
-                result.data.forEach(
-                    user => {
-
-                        html += `
-
-                            <tr>
-
-                                <td>
-                                    ${user.id}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        user.name || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        user.email || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        user.phone || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        user.role || ""
-                                    )}
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        class="btn"
-                                        onclick="
-                                            editAdminUser(
-                                                ${user.id},
-                                                '${escapeHtml(user.name || "")}',
-                                                '${escapeHtml(user.email || "")}',
-                                                '${escapeHtml(user.phone || "")}',
-                                                '${escapeHtml(user.role || "CUSTOMER")}'
-                                            )
-                                        ">
-
-                                        Edit
-
-                                    </button>
-
-
-                                    <button
-                                        class="btn btn-danger"
-                                        onclick="
-                                            deleteAdminUser(
-                                                ${user.id}
-                                            )
-                                        ">
-
-                                        Delete
-
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
+                        <tbody id="adminUsersTable">
 
                         </tbody>
 
                     </table>
 
-                `;
+                </div>
 
 
-                container.innerHTML =
-                    html;
+            </div>
 
 
-            } catch (error) {
 
-                console.error(
-                    "Admin users error:",
-                    error
-                );
+            <!-- =================================================
+                 APPOINTMENTS
+            ================================================== -->
 
-            }
+            <div class="admin-panel">
 
-        }
 
+                <div class="admin-panel-header">
 
+                    <div>
 
-        /* =====================================================
-           EDIT ADMIN USER
-        ===================================================== */
+                        <span class="section-label">
+                            BOOKINGS
+                        </span>
 
-        function editAdminUser(
-            userId,
-            name,
-            email,
-            phone,
-            role
-        ) {
+                        <h2>
+                            Appointment Management
+                        </h2>
 
-            const newName =
-                prompt(
-                    "Enter user name:",
-                    name
-                );
+                    </div>
 
+                </div>
 
-            if (newName === null) {
-                return;
-            }
 
 
-            const newEmail =
-                prompt(
-                    "Enter user email:",
-                    email
-                );
-
-
-            if (newEmail === null) {
-                return;
-            }
-
-
-            const newPhone =
-                prompt(
-                    "Enter user phone:",
-                    phone
-                );
-
-
-            if (newPhone === null) {
-                return;
-            }
-
-
-            const newRole =
-                prompt(
-                    "Enter role (CUSTOMER or ADMIN):",
-                    role
-                );
-
-
-            if (newRole === null) {
-                return;
-            }
-
-
-            updateAdminUser(
-                userId,
-                newName.trim(),
-                newEmail.trim(),
-                newPhone.trim(),
-                newRole.trim().toUpperCase()
-            );
-
-        }
-
-
-
-        /* =====================================================
-           UPDATE ADMIN USER
-        ===================================================== */
-
-        async function updateAdminUser(
-            userId,
-            name,
-            email,
-            phone,
-            role
-        ) {
-
-            if (!name || !email) {
-
-                alert(
-                    "Name and email are required."
-                );
-
-                return;
-
-            }
-
-
-            if (
-                role !== "CUSTOMER" &&
-                role !== "ADMIN"
-            ) {
-
-                alert(
-                    "Role must be CUSTOMER or ADMIN."
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/users/${userId}`,
-                        {
-                            method: "PUT",
-
-                            headers: {
-                                ...getAdminHeaders(),
-
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body: JSON.stringify({
-                                name: name,
-                                email: email,
-                                phone: phone || null,
-                                role: role
-                            })
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "User update failed."
-                    );
-
-                    return;
-
-                }
-
-
-                alert(
-                    result.message ||
-                    "User updated successfully."
-                );
-
-
-                loadAdminUsers();
-
-                loadAdminDashboard();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Admin user update error:",
-                    error
-                );
-
-                alert(
-                    "User update failed."
-                );
-
-            }
-
-        }
-
-
-
-        /* =====================================================
-           DELETE ADMIN USER
-        ===================================================== */
-
-        async function deleteAdminUser(
-            userId
-        ) {
-
-            if (
-                !confirm(
-                    "Delete this user?"
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/users/${userId}`,
-                        {
-                            method: "DELETE",
-
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "User deletion failed."
-                    );
-
-                    return;
-
-                }
-
-
-                alert(
-                    result.message ||
-                    "User deleted."
-                );
-
-
-                loadAdminUsers();
-
-                loadAdminDashboard();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Admin user delete error:",
-                    error
-                );
-
-            }
-
-        }
-        /* =====================================================
-           ADMIN APPOINTMENTS
-        ===================================================== */
-
-        async function loadAdminAppointments() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/appointments`,
-                        {
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                const container =
-                    document.getElementById(
-                        "adminAppointmentsContainer"
-                    );
-
-
-                if (
-                    !response.ok ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No appointments found.</p>";
-
-                    return;
-
-                }
-
-
-                let html = `
+                <div class="table-wrapper">
 
                     <table>
 
@@ -4914,6 +1720,10 @@ async function verifyPayment(
                                 <th>ID</th>
 
                                 <th>Customer</th>
+
+                                <th>Service</th>
+
+                                <th>Staff</th>
 
                                 <th>Date</th>
 
@@ -4927,254 +1737,46 @@ async function verifyPayment(
 
                         </thead>
 
-                        <tbody>
 
-                `;
-
-
-                result.data.forEach(
-                    appointment => {
-
-                        html += `
-
-                            <tr>
-
-                                <td>
-                                    ${appointment.id}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        appointment.customerName ||
-                                        ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${formatDate(
-                                        appointment.appointmentDate
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        appointment.startTime ||
-                                        ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        appointment.status ||
-                                        ""
-                                    )}
-                                </td>
-
-                                <td>
-
-                                    <select
-                                        onchange="
-                                            updateAdminAppointmentStatus(
-                                                ${appointment.id},
-                                                this.value
-                                            )
-                                        ">
-
-                                        <option
-                                            value="BOOKED"
-                                            ${
-                                                appointment.status ===
-                                                "BOOKED"
-                                                    ? "selected"
-                                                    : ""
-                                            }>
-
-                                            BOOKED
-
-                                        </option>
-
-                                        <option
-                                            value="CONFIRMED"
-                                            ${
-                                                appointment.status ===
-                                                "CONFIRMED"
-                                                    ? "selected"
-                                                    : ""
-                                            }>
-
-                                            CONFIRMED
-
-                                        </option>
-
-                                        <option
-                                            value="COMPLETED"
-                                            ${
-                                                appointment.status ===
-                                                "COMPLETED"
-                                                    ? "selected"
-                                                    : ""
-                                            }>
-
-                                            COMPLETED
-
-                                        </option>
-
-                                        <option
-                                            value="CANCELLED"
-                                            ${
-                                                appointment.status ===
-                                                "CANCELLED"
-                                                    ? "selected"
-                                                    : ""
-                                            }>
-
-                                            CANCELLED
-
-                                        </option>
-
-                                    </select>
-
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
+                        <tbody id="adminAppointmentsTable">
 
                         </tbody>
 
                     </table>
 
-                `;
+                </div>
 
 
-                container.innerHTML =
-                    html;
+            </div>
 
 
-            } catch (error) {
 
-                console.error(
-                    "Admin appointments error:",
-                    error
-                );
+            <!-- =================================================
+                 STAFF
+            ================================================== -->
 
-            }
-
-        }
+            <div class="admin-panel">
 
 
-        /* =====================================================
-           UPDATE ADMIN APPOINTMENT STATUS
-        ===================================================== */
+                <div class="admin-panel-header">
 
-        async function updateAdminAppointmentStatus(
-            appointmentId,
-            status
-        ) {
+                    <div>
 
-            try {
+                        <span class="section-label">
+                            TEAM
+                        </span>
 
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/appointments/${appointmentId}/status`,
-                        {
-                            method: "PUT",
+                        <h2>
+                            Staff
+                        </h2>
 
-                            headers:
-                                getAdminHeaders(),
+                    </div>
 
-                            body:
-                                JSON.stringify({
-                                    status
-                                })
-
-                        }
-                    );
+                </div>
 
 
-                const result =
-                    await response.json();
 
-
-                if (!response.ok) {
-
-                    alert(
-                        result.message ||
-                        "Status update failed."
-                    );
-
-                    return;
-
-                }
-
-
-                alert(
-                    result.message ||
-                    "Appointment status updated."
-                );
-
-
-                loadAdminAppointments();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
-
-
-        /* =====================================================
-           ADMIN STAFF
-        ===================================================== */
-
-        async function loadAdminStaff() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/staff`,
-                        {
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                const container =
-                    document.getElementById(
-                        "adminStaffContainer"
-                    );
-
-
-                if (
-                    !response.ok ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No staff found.</p>";
-
-                    return;
-
-                }
-
-
-                let html = `
+                <div class="table-wrapper">
 
                     <table>
 
@@ -5185,10 +1787,6 @@ async function verifyPayment(
                                 <th>ID</th>
 
                                 <th>Name</th>
-
-                                <th>Email</th>
-
-                                <th>Phone</th>
 
                                 <th>Specialization</th>
 
@@ -5198,133 +1796,46 @@ async function verifyPayment(
 
                         </thead>
 
-                        <tbody>
 
-                `;
-
-
-                result.data.forEach(
-                    staff => {
-
-                        html += `
-
-                            <tr>
-
-                                <td>
-                                    ${staff.id}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        staff.name || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        staff.email || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        staff.phone || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        staff.specialization ||
-                                        ""
-                                    )}
-                                </td>
-
-                                <td>
-
-                                    ${
-                                        staff.isActive
-                                            ? "Active"
-                                            : "Inactive"
-                                    }
-
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
+                        <tbody id="adminStaffTable">
 
                         </tbody>
 
                     </table>
 
-                `;
+                </div>
 
 
-                container.innerHTML =
-                    html;
+            </div>
 
 
-            } catch (error) {
 
-                console.error(
-                    "Admin staff error:",
-                    error
-                );
+            <!-- =================================================
+                 SERVICES
+            ================================================== -->
 
-            }
-
-        }
+            <div class="admin-panel">
 
 
-        /* =====================================================
-           ADMIN SERVICES
-        ===================================================== */
+                <div class="admin-panel-header">
 
-        async function loadAdminServices() {
+                    <div>
 
-            try {
+                        <span class="section-label">
+                            SERVICES
+                        </span>
 
-                const response =
-                    await fetch(
-                        `${API_URL}/api/admin/services`,
-                        {
-                            headers:
-                                getAdminHeaders()
-                        }
-                    );
+                        <h2>
+                            Salon Services
+                        </h2>
 
+                    </div>
 
-                const result =
-                    await response.json();
+                </div>
 
 
-                const container =
-                    document.getElementById(
-                        "adminServicesContainer"
-                    );
 
-
-                if (
-                    !response.ok ||
-                    !Array.isArray(result.data) ||
-                    result.data.length === 0
-                ) {
-
-                    container.innerHTML =
-                        "<p>No services found.</p>";
-
-                    return;
-
-                }
-
-
-                let html = `
+                <div class="table-wrapper">
 
                     <table>
 
@@ -5334,7 +1845,7 @@ async function verifyPayment(
 
                                 <th>ID</th>
 
-                                <th>Name</th>
+                                <th>Service</th>
 
                                 <th>Duration</th>
 
@@ -5346,414 +1857,289 @@ async function verifyPayment(
 
                         </thead>
 
-                        <tbody>
 
-                `;
-
-
-                result.data.forEach(
-                    service => {
-
-                        html += `
-
-                            <tr>
-
-                                <td>
-                                    ${service.id}
-                                </td>
-
-                                <td>
-                                    ${escapeHtml(
-                                        service.name || ""
-                                    )}
-                                </td>
-
-                                <td>
-                                    ${service.duration}
-                                    minutes
-                                </td>
-
-                                <td>
-                                    ₹${service.price}
-                                </td>
-
-                                <td>
-
-                                    ${
-                                        service.isActive
-                                            ? "Active"
-                                            : "Inactive"
-                                    }
-
-                                </td>
-
-                            </tr>
-
-                        `;
-
-                    }
-                );
-
-
-                html += `
+                        <tbody id="adminServicesTable">
 
                         </tbody>
 
                     </table>
 
-                `;
+                </div>
 
 
-                container.innerHTML =
-                    html;
+            </div>
 
 
-            } catch (error) {
 
-                console.error(
-                    "Admin services error:",
-                    error
-                );
-
-            }
+            <!-- =================================================
+                 REVIEWS
+            ================================================== -->
 
-        }
-
-/* =====================================================
-   LOAD ADMIN REVIEWS
-===================================================== */
-
-async function loadAdminReviews() {
+            <div class="admin-panel">
 
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/reviews`,
-                {
-                    headers:
-                        getAdminHeaders()
-                }
-            );
-
-        const result =
-            await response.json();
-
-        const container =
-            document.getElementById(
-                "adminReviewsContainer"
-            );
-
-        if (
-            !response.ok ||
-            !Array.isArray(result.data) ||
-            result.data.length === 0
-        ) {
-
-            container.innerHTML =
-                "<p>No reviews found.</p>";
 
-            return;
-        }
-
-        let html = `
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Appointment</th>
-                        <th>Customer</th>
-                        <th>Rating</th>
-                        <th>Comment</th>
-                        <th>Staff Response</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-        `;
+                <div class="admin-panel-header">
 
-        result.data.forEach(
-            review => {
-
-                const responseText =
-                    review.staffResponse &&
-                    review.staffResponse.trim()
-                        ? review.staffResponse
-                        : "No response";
-
-                const buttonText =
-                    review.staffResponse &&
-                    review.staffResponse.trim()
-                        ? "Edit Response"
-                        : "Reply";
+                    <div>
 
-                html += `
-                    <tr>
+                        <span class="section-label">
+                            CUSTOMER FEEDBACK
+                        </span>
 
-                        <td>
-                            ${review.id}
-                        </td>
+                        <h2>
+                            Reviews
+                        </h2>
 
-                        <td>
-                            ${review.appointmentId}
-                        </td>
+                    </div>
 
-                        <td>
-                            ${escapeHtml(
-                                review.customerName || ""
-                            )}
-                        </td>
-
-                        <td>
-                            ⭐ ${review.rating}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                review.comment || ""
-                            )}
-                        </td>
-
-                        <td>
-                            ${escapeHtml(
-                                responseText
-                            )}
-                        </td>
-
-                        <td>
-
-                            <button
-                                class="btn"
-                                onclick="
-                                    respondToAdminReview(
-                                        ${review.id}
-                                    )
-                                "
-                            >
-                                ${buttonText}
-                            </button>
-
-                        </td>
+                </div>
 
-                    </tr>
-                `;
-            }
-        );
-
-        html += `
-                </tbody>
 
-            </table>
-        `;
 
-        container.innerHTML = html;
+                <div class="table-wrapper">
 
-    } catch (error) {
+                    <table>
 
-        console.error(
-            "Admin reviews error:",
-            error
-        );
+                        <thead>
 
-    }
-}
+                            <tr>
 
-/* =====================================================
-   STAFF RESPONSE
-===================================================== */
+                                <th>ID</th>
 
-async function respondToAdminReview(
-    reviewId
-) {
+                                <th>Customer</th>
 
-    const responseText =
-        prompt(
-            "Enter staff response:"
-        );
+                                <th>Service</th>
 
-    if (responseText === null) {
-        return;
-    }
+                                <th>Rating</th>
 
-    if (!responseText.trim()) {
+                                <th>Comment</th>
 
-        alert(
-            "Please enter a response."
-        );
+                                <th>Response</th>
 
-        return;
-    }
+                                <th>Action</th>
 
-    try {
+                            </tr>
 
-        const response =
-            await fetch(
-                `${API_URL}/api/admin/reviews/${reviewId}/response`,
-                {
-                    method: "PUT",
+                        </thead>
 
-                    headers: {
-                        ...getAdminHeaders(),
 
-                        "Content-Type":
-                            "application/json"
-                    },
+                        <tbody id="adminReviewsTable">
 
-                    body:
-                        JSON.stringify({
-                            staffResponse:
-                                responseText.trim()
-                        })
-                }
-            );
+                        </tbody>
 
-        const result =
-            await response.json();
+                    </table>
 
-        if (!response.ok) {
+                </div>
 
-            alert(
-                result.message ||
-                "Failed to save staff response."
-            );
 
-            return;
-        }
+            </div>
 
-        alert(
-            result.message ||
-            "Staff response saved successfully."
-        );
 
-        await loadAdminReviews();
+        </section>
 
-    } catch (error) {
 
-        console.error(
-            "Staff response error:",
-            error
-        );
+    </main>
 
-        alert(
-            "Failed to save staff response."
-        );
-    }
-}
 
 
-        /* =====================================================
-           LOGOUT
-        ===================================================== */
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
 
-        function logout() {
+    <footer class="footer">
 
-            localStorage.removeItem(
-                "token"
-            );
 
-            localStorage.removeItem(
-                "user"
-            );
+        <div class="footer-container">
 
 
-            updateAdminButton();
+            <div class="footer-brand">
 
 
-            alert(
-                "Logged out successfully."
-            );
+                <div class="brand footer-brand-logo">
 
 
-            showPage(
-                "home"
-            );
+                    <div class="brand-icon">
+                        V
+                    </div>
 
-        }
 
+                    <div class="brand-text">
 
-        /* =====================================================
-           DATE FORMAT
-        ===================================================== */
+                        <span class="brand-name">
+                            VELORA
+                        </span>
 
-        function formatDate(date) {
+                        <span class="brand-subtitle">
+                            SALON & BEAUTY
+                        </span>
 
-            if (!date) {
+                    </div>
 
-                return "";
 
-            }
+                </div>
 
 
-            return String(date)
-                .split("T")[0];
 
-        }
+                <p>
+                    A modern salon appointment experience
+                    designed around you.
+                </p>
 
 
-        /* =====================================================
-           HTML ESCAPE
-        ===================================================== */
+            </div>
 
-        function escapeHtml(value) {
 
-            if (
-                value === null ||
-                value === undefined
-            ) {
 
-                return "";
+            <div class="footer-column">
 
-            }
 
+                <h3>
+                    Explore
+                </h3>
 
-            return String(value)
 
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
+                <a href="#"
+                    onclick="showPage('home'); return false;">
 
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
+                    Home
 
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
+                </a>
 
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
 
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
+                <a href="#"
+                    onclick="showPage('services'); return false;">
 
-        }
+                    Services
 
+                </a>
 
-        /* =====================================================
-           INITIAL LOAD
-        ===================================================== */
 
-        window.addEventListener(
-            "load",
-            function() {
+                <a href="#"
+                    onclick="showPage('staff'); return false;">
 
-                updateAdminButton();
+                    Our Team
 
-                loadServices();
+                </a>
 
-            }
-        );
 
-    </script>
+            </div>
+
+
+
+            <div class="footer-column">
+
+
+                <h3>
+                    Account
+                </h3>
+
+
+                <a href="#"
+                    onclick="showPage('login'); return false;">
+
+                    Login
+
+                </a>
+
+
+                <a href="#"
+                    onclick="showPage('register'); return false;">
+
+                    Register
+
+                </a>
+
+
+                <a href="#"
+                    onclick="showPage('appointments'); return false;">
+
+                    My Appointments
+
+                </a>
+
+
+            </div>
+
+
+
+            <!-- =================================================
+                 CONTACT DETAILS
+            ================================================== -->
+
+            <div class="footer-column">
+
+
+                <h3>
+                    Contact
+                </h3>
+
+
+                <p>
+
+                    ✉
+
+                    <a href="mailto:viratdheeraj97@gmail.com">
+
+                        viratdheeraj97@gmail.com
+
+                    </a>
+
+                </p>
+
+
+                <p>
+
+                    ☎
+
+                    <a href="tel:+919304721295">
+
+                        9304721295
+
+                    </a>
+
+                </p>
+
+
+                <p>
+
+                    ◉ Varanasi, India
+
+                </p>
+
+
+            </div>
+
+
+        </div>
+
+
+
+        <div class="footer-bottom">
+
+
+            <p>
+                © 2026 Velora Salon. All rights reserved.
+            </p>
+
+
+            <p>
+                Salon Appointment Booking System
+            </p>
+
+
+        </div>
+
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script src="./js/script.js"></script>
+
 
 </body>
 
