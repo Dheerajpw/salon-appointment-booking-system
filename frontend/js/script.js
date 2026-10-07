@@ -6,8 +6,7 @@
 // =====================================================
 // CONFIGURATION
 // =====================================================
-
-const API_URL = "http://51.20.70.161:5000";
+const API_URL = "https://velora-salon-api.onrender.com";
 
 const RAZORPAY_KEY_ID = "rzp_test_TdqP8FGS6OOGgV";
 
