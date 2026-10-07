@@ -1,3 +1,4 @@
+
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
@@ -7,6 +8,13 @@ const pool = mysql.createPool({
     password: process.env.DB_PASSWORD || "",
     database: process.env.DB_NAME || "salon_booking",
     port: Number(process.env.DB_PORT) || 3306,
+
+    // Aiven MySQL requires SSL
+    ssl: process.env.DB_SSL === "true"
+        ? {
+            rejectUnauthorized: false
+        }
+        : undefined,
 
     waitForConnections: true,
     connectionLimit: 10,

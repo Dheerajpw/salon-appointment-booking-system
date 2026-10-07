@@ -119,8 +119,23 @@ app.use(
 // APPOINTMENT REMINDER CRON JOB
 // ==========================================
 
-const startAppointmentReminderJob =
-    require("./jobs/appointmentReminder");
+// Reminder job is enabled only when
+// ENABLE_REMINDER_JOB=true.
+//
+// This prevents Render from trying to load
+// Gmail client_secret.json when the reminder
+// system is disabled in production.
+
+let startAppointmentReminderJob = null;
+
+if (
+    process.env.ENABLE_REMINDER_JOB === "true"
+) {
+
+    startAppointmentReminderJob =
+        require("./jobs/appointmentReminder");
+
+}
 
 
 // ==========================================
@@ -145,11 +160,33 @@ const startServer = async () => {
 
     try {
 
-        // Start appointment reminder job
-        startAppointmentReminderJob();
+        // ======================================
+        // START APPOINTMENT REMINDER JOB
+        // ======================================
+
+        if (
+            startAppointmentReminderJob
+        ) {
+
+            startAppointmentReminderJob();
+
+            console.log(
+                "Appointment reminder cron job started"
+            );
+
+        } else {
+
+            console.log(
+                "Appointment reminder cron job disabled"
+            );
+
+        }
 
 
-        // Start Express server
+        // ======================================
+        // START EXPRESS SERVER
+        // ======================================
+
         app.listen(PORT, () => {
 
             console.log(
