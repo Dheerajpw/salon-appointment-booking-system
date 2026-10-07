@@ -7,13 +7,16 @@ The project also includes an admin dashboard for managing users, services, staff
 ## Live Project
 
 🌐 **Live Website:**
-https://timely-starship-a0cc85.netlify.app/
+https://velora-salon-mgin.onrender.com
 
 🎥 **Demo Video:**
 https://youtu.be/BAQYdAtBE8w
 
 💻 **GitHub Repository:**
 https://github.com/Dheerajpw/salon-appointment-booking-system
+
+**Backend API:**
+https://velora-salon-api.onrender.com
 
 ---
 
